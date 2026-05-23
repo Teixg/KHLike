@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KHLike — A Kingdom Hearts roguelike with procedural map progression">
+  <title>KHLike · Roguelike of Hearts</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/battle.css">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+</head>
+
+<body>
+
+  <div id="game">
+    <div class="star-bg" id="stars"></div>
+
+    <!-- ══════════════════════════════════
+       TITLE SCREEN
+  ══════════════════════════════════ -->
+    <div id="s-title" class="screen active">
+      <div class="content" style="margin-top:10px;">
+        <div class="kh-title">KHLIKE</div>
+        <div class="kh-subtitle" style="margin-bottom:4px;">Roguelike of Hearts</div>
+        <div class="crown-deco"></div>
+        <div class="heart-symbol"><img src="assets/hero.png" alt="hero"></div>
+        <div class="crown-deco"></div>
+        <div class="info-quote" style="margin-top:16px;margin-bottom:24px;">
+          "Darkness cannot prevail where light endures in the heart."
+        </div>
+        <button class="btn primary" onclick="showScreen('s-select')" style="font-size:13px;padding:12px 40px;">
+          New Journey
+        </button>
+        <div style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);margin-top:20px;letter-spacing:3px;">
+          v0.2 · May 2026
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:8px;color:var(--kh-muted);margin-top:20px;letter-spacing:3px; text-align:center; max-width:400px;">
+          Kingdom Hearts and all associated properties,
+          including characters, music, images, and logos,
+          are owned by Disney and Square Enix.
+
+          This is an unofficial non-profit fan project
+          created out of admiration for the original work.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+       CHARACTER SELECT
+  ══════════════════════════════════ -->
+    <div id="s-select" class="screen">
+      <div class="content">
+        <div class="kh-logo" style="margin-bottom:4px;">Choose your</div>
+        <div class="cinzel" style="font-size:22px;color:var(--kh-gold);letter-spacing:2px;margin-bottom:4px;">Keyblade
+          Wielder</div>
+        <div class="crown-deco" style="margin-bottom:16px;"></div>
+        <div class="char-grid" id="char-grid"></div>
+        <button class="btn primary" id="btn-start" onclick="startRun()" style="margin-top:8px;" disabled>
+          Begin the Journey
+        </button>
+        <button class="btn small dark-btn" onclick="showScreen('s-title')" style="margin-top:4px;">← Return</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+       MAP SCREEN
+  ══════════════════════════════════ -->
+    <div id="s-map" class="screen" style="padding:0;">
+      <!-- HUD bar (sticky) -->
+      <div class="map-hud">
+        <div class="map-hud-left">
+          <div class="map-hud-world">
+            <span id="hud-world-icon">🌑</span>
+            <span id="hud-world" style="margin-left:6px;">—</span>
+          </div>
+          
+        </div>
+        <div class="map-hud-right">
+          <div class="hud-stat">
+            FLOOR<span id="hud-level">1</span>
+          </div>
+          <div class="hud-stat">
+            DEFEATED<span id="hud-kills">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Party bar -->
+      <div class="map-party">
+        <div class="party-bar" id="party-bar"></div>
+      </div>
+
+      <!-- Scrollable map area with side panels -->
+      <div class="map-body">
+        <aside class="map-panel map-panel-left" id="map-panel-left"></aside>
+        <div class="map-scroll" id="map-scroll">
+          <div id="map-canvas-wrap">
+            <svg id="map-svg"></svg>
+            <!-- Node divs injected by maprender.js -->
+          </div>
+        </div>
+        <aside class="map-panel map-panel-right" id="map-panel-right"></aside>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+       BATTLE SCREEN
+  ══════════════════════════════════ -->
+    <div id="s-battle" class="screen" style="padding:14px 12px;">
+      <div class="content" style="width:100%;max-width:600px;">
+        <div class="section-title" style="align-self:flex-start;">⚔ Combat</div>
+
+        <div class="battle-wrap" style="position:relative;">
+          <!-- Boss banner (hidden by default) -->
+          <div class="boss-banner" id="boss-banner">⚠ BOSS BATTLE ⚠</div>
+
+          <!-- Field -->
+          <div class="battle-field">
+            <!-- Player side -->
+            <div class="fighter-side">
+              <div class="f-name" id="p-name">—</div>
+              <div class="hp-wrap">
+                <div class="hp-row">
+                  <span style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);">HP</span>
+                  <span id="p-hp-txt" style="font-size:12px;">—</span>
+                </div>
+                <div class="hp-track">
+                  <div class="hp-fill" id="p-hp-bar" style="width:100%;background:#4caf7d;"></div>
+                </div>
+                <div class="mp-track">
+                  <div class="mp-fill" id="p-mp-bar" style="width:100%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="f-sprite" id="p-sprite" style="align-self:flex-end;margin-bottom:4px;">🗡️</div>
+            <div class="vs-orb">♥</div>
+            <div class="f-sprite" id="e-sprite" style="align-self:flex-start;margin-top:4px;">👁️</div>
+
+            <!-- Enemy side -->
+            <div class="fighter-side right">
+              <div class="f-name" id="e-name">—</div>
+              <div class="f-type-tag" id="e-type">—</div>
+              <div class="hp-wrap">
+                <div class="hp-row">
+                  <span id="e-hp-txt" style="font-size:12px;">—</span>
+                  <span style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);">HP</span>
+                </div>
+                <div class="hp-track">
+                  <div class="hp-fill" id="e-hp-bar" style="width:100%;background:#cc3366;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Log -->
+          <div class="battle-log" id="battle-log">
+            <div class="log-line log-system">Awaiting command...</div>
+          </div>
+
+          <!-- Commands -->
+          <div class="command-menu" id="cmd-menu"></div>
+
+          <!-- Result overlay -->
+          <div class="result-overlay" id="battle-result" style="display:none;">
+            <div class="result-title" id="res-title">Victory!</div>
+            <div class="crown-deco"></div>
+            <div class="result-sub" id="res-sub"></div>
+            <div class="result-rewards" id="res-rewards" style="display:none;"></div>
+            <button class="btn primary" id="res-btn" onclick="afterBattle()">Continue</button>
+          </div>
+        </div>
+
+        <button class="btn small dark-btn" style="margin-top:10px;align-self:flex-start;" onclick="showScreen('s-map')">
+          ← Map (retreat)
+        </button>
+      </div>
+    </div>
+
+  </div><!-- #game -->
+
+  <!-- Scripts: data → generation → rendering → battle → game controller -->
+  <script src="js/data.js"></script>
+  <script src="js/mapgen.js"></script>
+  <script src="js/maprender.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/game.js"></script>
+
+</body>
+
+</html>
