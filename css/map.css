@@ -198,9 +198,9 @@
   stroke-linejoin: round;
   transition: stroke-width .18s ease, opacity .18s ease, filter .25s ease;
 }
-#map-svg .map-path-available { stroke-opacity: 1; filter: drop-shadow(0 0 6px rgba(255,200,120,.18)); }
+#map-svg .map-path-available { stroke-opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 201, 120, 0.993)); }
 #map-svg .map-path-visited { opacity: .95; stroke: rgba(255,255,255,.85); }
-#map-svg .map-path-locked { stroke-dasharray: 4 6; opacity: .28; }
+#map-svg .map-path-locked { stroke-dasharray: 4 6; opacity: .88; }
 
 /* ── Map Nodes ── */
 .map-node {

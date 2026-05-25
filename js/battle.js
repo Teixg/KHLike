@@ -1,102 +1,155 @@
 /**
  * battle.js — Turn-based battle system
+ *
+ * FIXES aplicados:
+ *  1. pickEnemy() ahora resuelve IDs de string a objetos de ENEMY_TEMPLATES
+ *  2. getScaledEnemy() eliminada de aquí — definición canónica en data.js
+ *  3. endBattle(): la derrota contra jefe ya NO avanza al siguiente mundo
+ *  4. afterBattle(): usa generateMap() en lugar de generateWorldMap() (inexistente)
+ *  5. Lógica de transición de mundo unificada en afterBattle(); endBattle() ya no la duplica
  */
 
-function getScaledEnemy(template, level) {
-  const scale = 1 + level * 0.18;
-  return {
-    ...template,
-    hp:      Math.round(template.baseHp  * scale),
-    atk:     Math.round(template.baseAtk * scale),
-    currentHp: Math.round(template.baseHp * scale),
-  };
+// ───────────────────────────────────────────────────────────
+// pickEnemy — resuelve IDs string → objetos ENEMY_TEMPLATES
+// ───────────────────────────────────────────────────────────
+
+function pickEnemy(nodeLevel, isBoss = false, isWorldBoss = false) {
+
+  const world = WORLDS[gs.currentWorldId];
+
+  if (!world) {
+    console.error('World not found:', gs.currentWorldId);
+    return null;
+  }
+
+  let enemyPool = [];
+
+  if (isBoss || isWorldBoss) {
+    // El jefe del mundo está referenciado por world.boss (string ID)
+    const bossTemplate = ENEMY_TEMPLATES.find(e => e.id === world.boss);
+    if (bossTemplate) {
+      enemyPool = [bossTemplate];
+    } else {
+      console.error(`Boss "${world.boss}" not found in ENEMY_TEMPLATES`);
+      return null;
+    }
+  } else {
+    // world.enemies es un array de string IDs — los resolvemos a objetos
+    enemyPool = world.enemies
+      .map(id => ENEMY_TEMPLATES.find(e => e.id === id))
+      .filter(Boolean);
+  }
+
+  if (!enemyPool.length) {
+    console.error('Enemy pool empty for world:', world.name);
+    return null;
+  }
+
+  const enemyTemplate = enemyPool[Math.floor(Math.random() * enemyPool.length)];
+  return getScaledEnemy(enemyTemplate, nodeLevel);
 }
 
-function pickEnemy(level, isBoss, isFinal) {
-  if (isFinal) {
-    const t = ENEMY_TEMPLATES.find(e => e.isFinal);
-    return getScaledEnemy(t, level);
-  }
-  if (isBoss) {
-    const bosses = ENEMY_TEMPLATES.filter(e => e.isBoss && !e.isFinal);
-    return getScaledEnemy(bosses[Math.floor(Math.random() * bosses.length)], level);
-  }
-  const normals = ENEMY_TEMPLATES.filter(e => !e.isBoss);
-  return getScaledEnemy(normals[Math.floor(Math.random() * normals.length)], level);
-}
+// ───────────────────────────────────────────────────────────
+// startBattle
+// ───────────────────────────────────────────────────────────
 
-function startBattle(enemy, isBoss) {
-  gs.currentEnemy  = enemy;
-  gs.battleActive  = true;
+function startBattle(enemy, isBoss, isFinal) {
+  if (!enemy || typeof enemy.hp !== 'number' || isNaN(enemy.hp)) {
+    console.error('Invalid enemy in startBattle:', enemy);
+    return;
+  }
+
+  enemy.currentHp = enemy.hp;
+
+  gs.currentEnemy   = enemy;
+  gs.battleActive   = true;
   gs.pendingVictory = false;
 
   const c = gs.char;
   document.getElementById('battle-result').style.display = 'none';
   document.getElementById('boss-banner').style.display = isBoss ? 'block' : 'none';
 
-  const keybladeName = gs.currentKeyblade ? `${gs.currentKeyblade.icon} ${gs.currentKeyblade.name}` : 'No Keyblade';
-  const levelDisplay = `<div style="display:flex;justify-content:space-between;width:100%;"><span>${c.name}</span><span style="color:var(--kh-gold);font-size:11px;">Lv.${gs.playerLevel}</span></div><div style="display:flex;justify-content:space-between;width:100%;font-size:10px;color:var(--kh-muted);margin-top:2px;"><span>Keyblade</span><span>${keybladeName}</span></div>`;
-  document.getElementById('p-name').innerHTML = levelDisplay;
-  
+  const keybladeName = gs.currentKeyblade
+    ? `${gs.currentKeyblade.icon} ${gs.currentKeyblade.name}`
+    : 'No Keyblade';
+
+  const levelDisplay = `
+    <div style="display:flex;justify-content:space-between;width:100%;">
+      <span>${c.name}</span>
+      <span style="color:var(--kh-gold);font-size:11px;">Lv.${gs.playerLevel}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;width:100%;font-size:10px;color:var(--kh-muted);margin-top:2px;">
+      <span>Keyblade</span><span>${keybladeName}</span>
+    </div>`;
+
+  document.getElementById('p-name').innerHTML  = levelDisplay;
   document.getElementById('p-sprite').innerHTML = c.emoji;
   document.getElementById('e-name').textContent = enemy.name;
   document.getElementById('e-type').textContent = enemy.type;
-  document.getElementById('e-sprite').innerHTML = enemy.emoji;
+  document.getElementById('e-sprite').innerHTML  = enemy.emoji;
 
   updateBattleBars();
-  // In auto-battle mode we don't render command buttons
   renderCommands();
 
   const log = document.getElementById('battle-log');
   log.innerHTML = `
     <div class="log-line log-system">— ENCOUNTER —</div>
-    <div class="log-line"><span style="color:var(--kh-heart);font-family:'Cinzel',serif;font-size:10px;">${enemy.type.toUpperCase()}</span> — <b>${enemy.name}</b> appeared!</div>
-  `;
+    <div class="log-line">
+      <span style="color:var(--kh-heart);font-family:'Cinzel',serif;font-size:10px;">${enemy.type.toUpperCase()}</span>
+      — <b>${enemy.name}</b> appeared!
+    </div>`;
+
+  gs.currentBattleInfo = { isFinal, enemy };
 
   showScreen('s-battle');
-
-  // Start automatic combat loop after a short delay
   setTimeout(() => autoBattleStart(), 600);
 }
 
-/* ===== Auto-battle logic ===== */
+// ───────────────────────────────────────────────────────────
+// Auto-battle loop
+// ───────────────────────────────────────────────────────────
+
 function autoBattleStart() {
-  // Ensure battle is active
   gs.battleActive = true;
-  // Kick off with player attacking first
   playerAutoAttack();
 }
 
 function playerAutoAttack() {
   if (!gs.battleActive) return;
   const c = gs.char, e = gs.currentEnemy;
-  // Calculate damage with keyblade and item bonuses
+
   const finalStats = calculateFinalStats();
-  const variance = Math.floor(Math.random() * 6) - 2; // -2..+3
-  const dmg = Math.max(1, Math.round(finalStats.atk + variance));
+  const variance   = Math.floor(Math.random() * 6) - 2;
+  const dmg        = Math.max(1, Math.round(finalStats.atk + variance));
+
   e.currentHp = Math.max(0, e.currentHp - dmg);
   spriteShake('e-sprite');
   addLog(`🗡️ <b>${c.name}</b> attacks for <b style="color:#ff8866;">${dmg}</b>`, 'log-action');
   updateBattleBars();
+
   if (e.currentHp <= 0) { endBattle(true); return; }
-  // Enemy turn after brief delay
   setTimeout(enemyAutoAttack, 700);
 }
 
 function enemyAutoAttack() {
   if (!gs.battleActive) return;
   const c = gs.char, e = gs.currentEnemy;
+
   const variance = Math.floor(Math.random() * 6) - 2;
-  const dmg = Math.max(1, Math.round(e.atk + variance));
+  const dmg      = Math.max(1, Math.round(e.atk + variance));
+
   c.currentHp = Math.max(0, c.currentHp - dmg);
-  // No MP regen or other mechanics in auto mode
   spriteShake('p-sprite');
   addLog(`💢 <b>${e.name}</b> attacks for <b style="color:#ff6644;">${dmg}</b>`, 'log-enemy');
   updateBattleBars();
+
   if (c.currentHp <= 0) { endBattle(false); return; }
-  // Next player attack
   setTimeout(playerAutoAttack, 600);
 }
+
+// ───────────────────────────────────────────────────────────
+// UI helpers
+// ───────────────────────────────────────────────────────────
 
 function updateBattleBars() {
   const c = gs.char, e = gs.currentEnemy;
@@ -119,9 +172,7 @@ function updateBattleBars() {
 }
 
 function renderCommands() {
-  const c    = gs.char;
   const menu = document.getElementById('cmd-menu');
-  // Auto-battle mode: no command buttons. Show a small status note.
   menu.innerHTML = `<div class="auto-battle-note">Auto Battle — actions handled automatically</div>`;
 }
 
@@ -139,21 +190,26 @@ function spriteShake(id) {
   const el = document.getElementById(id);
   if (!el) return;
   el.classList.remove('shake');
-  void el.offsetWidth; // reflow
+  void el.offsetWidth;
   el.classList.add('shake');
   setTimeout(() => el.classList.remove('shake'), 350);
 }
+
+// ───────────────────────────────────────────────────────────
+// useSkill — sigue disponible aunque el modo auto no lo use
+// ───────────────────────────────────────────────────────────
 
 function useSkill(idx) {
   if (!gs.battleActive) return;
   const c  = gs.char;
   const e  = gs.currentEnemy;
+
+  if (!c.skills || !c.skills[idx]) return;
   const sk = c.skills[idx];
 
   if (sk.mpCost > 0 && c.currentMp < sk.mpCost) return;
   c.currentMp = Math.max(0, c.currentMp - sk.mpCost);
 
-  // Disable commands during animation
   gs.battleActive = false;
   renderCommands();
 
@@ -166,10 +222,10 @@ function useSkill(idx) {
 
   } else if (sk.type === 'drain') {
     const variance = Math.floor(Math.random() * 8) - 3;
-    const dmg = Math.max(1, sk.dmg + (c.atk >> 2) + variance);
-    const drain = Math.round(dmg * 0.4);
-    e.currentHp = Math.max(0, e.currentHp - dmg);
-    c.currentHp = Math.min(c.hp, c.currentHp + drain);
+    const dmg      = Math.max(1, sk.dmg + (c.atk >> 2) + variance);
+    const drain    = Math.round(dmg * 0.4);
+    e.currentHp    = Math.max(0, e.currentHp - dmg);
+    c.currentHp    = Math.min(c.hp, c.currentHp + drain);
     spriteShake('e-sprite');
     addLog(`${sk.icon} <b>${sk.name}</b> — ${e.name} takes <b>${dmg}</b> · Drained <b style="color:#4caf7d;">${drain} HP</b>`, 'log-action');
     updateBattleBars();
@@ -178,9 +234,9 @@ function useSkill(idx) {
 
   } else {
     const variance = Math.floor(Math.random() * 8) - 3;
-    const stat  = sk.type === 'magic' ? c.mgk : c.atk;
-    const dmg   = Math.max(1, sk.dmg + (stat >> 2) + variance);
-    e.currentHp = Math.max(0, e.currentHp - dmg);
+    const stat     = sk.type === 'magic' ? c.mgk : c.atk;
+    const dmg      = Math.max(1, sk.dmg + (stat >> 2) + variance);
+    e.currentHp    = Math.max(0, e.currentHp - dmg);
     spriteShake('e-sprite');
     const cls = sk.type === 'magic' ? 'log-magic' : 'log-action';
     addLog(`${sk.icon} <b>${sk.name}</b> — ${e.name} takes <b>${dmg}</b>`, cls);
@@ -193,8 +249,7 @@ function useSkill(idx) {
 function enemyTurn() {
   const c = gs.char, e = gs.currentEnemy;
   const dmg = Math.max(1, e.atk + Math.floor(Math.random() * 6) - 2);
-  c.currentHp = Math.max(0, c.currentHp - dmg);
-  // MP regen on hit (like KH gauge)
+  c.currentHp  = Math.max(0, c.currentHp - dmg);
   c.currentMp  = Math.min(c.mp, c.currentMp + 10);
   spriteShake('p-sprite');
   addLog(`💢 <b>${e.name}</b> attacks for <b style="color:#ff6644;">${dmg}</b>`, 'log-enemy');
@@ -208,6 +263,10 @@ function enemyTurn() {
   }
 }
 
+// ───────────────────────────────────────────────────────────
+// endBattle — FIX: la derrota contra jefe ya NO avanza de mundo
+// ───────────────────────────────────────────────────────────
+
 function endBattle(won) {
   gs.battleActive = false;
   renderCommands();
@@ -220,46 +279,41 @@ function endBattle(won) {
 
   if (won) {
     gs.wins++;
-    
-    // Store old stats before level up
+
     const oldStats = {
-      hp: gs.char.hp,
-      atk: gs.char.atk,
-      mgk: gs.char.mgk,
-      spd: gs.char.spd,
-      mp: gs.char.mp,
+      hp: gs.char.hp, atk: gs.char.atk,
+      mgk: gs.char.mgk, spd: gs.char.spd, mp: gs.char.mp,
     };
-    
-    // Level up and update stats
+
     gs.playerLevel++;
     updateCharStats();
-    
-    // Calculate stat gains
+
     const statGains = {
-      hp: gs.char.hp - oldStats.hp,
+      hp:  gs.char.hp  - oldStats.hp,
       atk: gs.char.atk - oldStats.atk,
       mgk: gs.char.mgk - oldStats.mgk,
       spd: gs.char.spd - oldStats.spd,
-      mp: gs.char.mp - oldStats.mp,
+      mp:  gs.char.mp  - oldStats.mp,
     };
-    
-    rt.textContent  = '✦ VICTORY ✦';
-    rt.className    = 'result-title result-victory';
-    rs.textContent  = `${gs.currentEnemy.name} has been defeated.`;
-    
-    // Build rewards text
+
+    rt.textContent = '✦ VICTORY ✦';
+    rt.className   = 'result-title result-victory';
+    rs.textContent = `${gs.currentEnemy.name} has been defeated.`;
+
     let rewardsText = `Reward: ${gs.currentEnemy.reward}<br/>`;
     rewardsText += `<span style="color:var(--kh-gold);font-weight:bold;">Level ${gs.playerLevel}</span> `;
-    rewardsText += `${statGains.hp > 0 ? `❤️+${statGains.hp}` : ''} `;
+    rewardsText += `${statGains.hp  > 0 ? `❤️+${statGains.hp}`  : ''} `;
     rewardsText += `${statGains.atk > 0 ? `⚔️+${statGains.atk}` : ''} `;
     rewardsText += `${statGains.mgk > 0 ? `✨+${statGains.mgk}` : ''} `;
-    rewardsText += `${statGains.mp > 0 ? `💙+${statGains.mp}` : ''}`;
-    
-    rr.innerHTML  = rewardsText;
+    rewardsText += `${statGains.mp  > 0 ? `💙+${statGains.mp}`  : ''}`;
+
+    rr.innerHTML     = rewardsText;
     rr.style.display = 'block';
     document.getElementById('res-btn').textContent = 'Continue Journey';
     gs.pendingVictory = true;
+
   } else {
+    // DERROTA — nunca avanzar al siguiente mundo
     rt.textContent  = 'Darkness Prevails...';
     rt.className    = 'result-title result-defeat';
     rs.innerHTML    = '&ldquo;Even in the deepest darkness, there will always be a light to guide you.&rdquo;';
@@ -269,16 +323,67 @@ function endBattle(won) {
   }
 }
 
+// ───────────────────────────────────────────────────────────
+// afterBattle — FIX: usa generateMap() (existente) en lugar de
+//               generateWorldMap() (inexistente); lógica de
+//               transición unificada aquí, no duplicada en endBattle
+// ───────────────────────────────────────────────────────────
+
 function afterBattle() {
   if (gs.pendingVictory) {
-    // Mark the node as done, update map, go back
+    // ¿Era el jefe final del mundo?
+    if (gs.currentBattleInfo?.isFinal) {
+      const currentWorld = WORLDS[gs.currentWorldId];
+      const nextWorldId  = gs.currentWorldId + 1;
+
+      if (nextWorldId < WORLDS.length) {
+        const nextWorld = WORLDS[nextWorldId];
+        gs.currentWorldId = nextWorldId;
+
+        // Ajustar nivel del jugador al rango del nuevo mundo
+        gs.playerLevel = nextWorld.levelRange[0];
+
+        console.log(`🌍 World transition: ${currentWorld.name} → ${nextWorld.name}`);
+
+        // FIX: generateMap() es la función correcta (mapgen.js)
+        gs.map = generateMap(gs.currentWorldId);
+        gs.pendingNodeId     = null;
+        gs.currentBattleInfo = null;
+
+        renderMapCanvas();
+
+        showEventOverlay({
+          icon:  nextWorld.icon || '🌍',
+          title: nextWorld.name,
+          body:  'A new world opens before you.',
+          reward: `World ${gs.currentWorldId + 1}/${WORLDS.length}`,
+          onClose: () => showScreen('s-map'),
+        });
+
+      } else {
+        // ¡Juego completado!
+        showEventOverlay({
+          icon:  '👑',
+          title: 'You Have Prevailed!',
+          body:  'All worlds have been conquered. The Keyblade War is over.',
+          reward: '',
+          onClose: () => showScreen('s-title'),
+        });
+      }
+      return;
+    }
+
+    // Victoria en combate normal — avanzar al siguiente nodo
     if (gs.pendingNodeId) {
       advanceMap(gs.map, gs.pendingNodeId);
       gs.currentLevel = gs.map.nodes[gs.pendingNodeId].level;
     }
+    gs.currentBattleInfo = null;
     renderMapCanvas();
     showScreen('s-map');
+
   } else {
+    // Derrota → volver al título
     showScreen('s-title');
   }
 }

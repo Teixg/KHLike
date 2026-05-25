@@ -148,15 +148,16 @@ function renderMapCanvas() {
     } else if (state === 'state-locked') {
       div.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,.6))';
     } else {
-      div.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,.7)) brightness(.85)';
+      div.style.filter = 'grayscale(100%) brightness(0.7) drop-shadow(0 2px 4px rgba(0,0,0,.7))';
     }
 
     div.innerHTML = buildNodeHTML(n, cfg);
 
     if (state === 'state-available') {
       div.style.cursor = 'pointer';
-      const worldIdx = LEVEL_TO_WORLD[Math.min(n.level, LEVEL_TO_WORLD.length - 1)];
-      div.title = `${cfg.label} — ${WORLDS[worldIdx].name}`;
+      const world = WORLDS[gs.currentWorldId];
+
+div.title = `${cfg.label} — ${world.name}`;
       div.addEventListener('click', () => handleMapNode(n.id));
     }
 
@@ -167,12 +168,14 @@ function renderMapCanvas() {
 }
 
 function updateMapHUD() {
-  const worldIdx = LEVEL_TO_WORLD[Math.min(gs.currentLevel || 0, LEVEL_TO_WORLD.length - 1)];
-  const world = WORLDS[worldIdx];
+  const world = WORLDS[gs.currentWorldId];
+
   document.getElementById('hud-world').textContent = world.name;
-  document.getElementById('hud-world-icon').innerHTML = world.icon; 
+  document.getElementById('hud-world-icon').innerHTML = world.icon;
+
   document.getElementById('hud-kills').textContent = gs.wins;
   document.getElementById('hud-level').textContent = (gs.currentLevel || 0) + 1;
+
   renderMapSidePanels();
 }
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Test</title>
+    <script src="js/data.js"></script>
+    <script src="js/mapgen.js"></script>
+</head>
+<body>
+    <h1>Map Generation Test</h1>
+    <pre id="output"></pre>
+    <script>
+        const map = generateMap();
+        const endNode = Object.values(map.nodes).find(n => n.type === 'end');
+        const output = document.getElementById('output');
+        
+        output.textContent = 'End Node ID: ' + endNode.id + '\n';
+        output.textContent += 'End Node Type: ' + endNode.type + '\n';
+        output.textContent += 'End Node Level: ' + endNode.level + '\n\n';
+        
+        // Find all penultimate level nodes and check if they connect to end
+        const penultimateLevel = map.levels[map.levels.length - 2];
+        output.textContent += 'Penultimate Level Nodes: ' + penultimateLevel.length + '\n';
+        
+        let allConnectToEnd = true;
+        penultimateLevel.forEach((nodeId, idx) => {
+            const node = map.nodes[nodeId];
+            const connectsToEnd = node.connections.includes(endNode.id);
+            output.textContent += `  Node ${idx} (${nodeId}): connects to end = ${connectsToEnd}\n`;
+            if (!connectsToEnd) allConnectToEnd = false;
+        });
+        
+        output.textContent += '\n✅ All nodes connect to end: ' + allConnectToEnd + '\n';
+    </script>
+</body>
+</html>

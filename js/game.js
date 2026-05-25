@@ -1,21 +1,32 @@
 /**
  * game.js — Main game state, screen management, node handling, events
+ *
+ * FIXES aplicados:
+ *  1. handleMapNode(): el nodo 'start' ya tiene su propio case (no cae al default)
+ *  2. goToNextWorld() eliminado — la transición de mundo vive únicamente en afterBattle()
  */
+
+// Validate worlds and enemies configuration
+if (typeof validateWorldEnemies === 'function') {
+  validateWorldEnemies();
+}
 
 // ── Global game state ──────────────────────────────────────
 let gs = {
-  char:           null,   // current character (with currentHp/Mp, level, stats)
-  map:            null,   // { nodes, levels, currentNodeId }
-  wins:           0,
-  currentLevel:   0,
-  inventory:      [],
-  equippedItems:  [],     // Max 2 items equipped
-  currentKeyblade: null,  // Current keyblade
-  playerLevel:    1,      // Player level (starts at 1)
-  pendingNodeId:  null,
-  pendingVictory: false,
-  battleActive:   false,
-  currentEnemy:   null,
+  char:            null,
+  map:             null,
+  wins:            0,
+  currentLevel:    0,
+  currentWorldId:  0,
+  inventory:       [],
+  equippedItems:   [],
+  currentKeyblade: null,
+  playerLevel:     1,
+  pendingNodeId:   null,
+  pendingVictory:  false,
+  battleActive:    false,
+  currentEnemy:    null,
+  currentBattleInfo: null,
 };
 
 // ── Screen management ──────────────────────────────────────
@@ -42,30 +53,24 @@ let selIdx = null;
 function renderChars() {
   const g = document.getElementById('char-grid');
   g.innerHTML = '';
-  const maxStats = CHARS.reduce((acc, ch) => {
-    acc.hp = Math.max(acc.hp, ch.hp);
-    acc.mp = Math.max(acc.mp, ch.mp);
-    acc.atk = Math.max(acc.atk, ch.atk);
-    acc.mgk = Math.max(acc.mgk, ch.mgk);
-    acc.spd = Math.max(acc.spd, ch.spd);
-    return acc;
-  }, { hp: 0, mp: 0, atk: 0, mgk: 0, spd: 0 });
 
   CHARS.forEach((c, i) => {
     const d = document.createElement('div');
     d.className = 'char-card';
     d.id = `cc-${i}`;
     d.onclick = () => selectChar(i);
+
     const spriteHtml = c.selectImg
       ? `<img src="${c.selectImg}" alt="${c.name}" class="char-select-img" />`
       : c.emoji;
-    // Visual scale: use fixed maximum of 200 for all stat bars
+
     const FIXED_MAX = 200;
-    const hpPct = Math.min(100, Math.round((c.hp / FIXED_MAX) * 100));
-    const mpPct = Math.min(100, Math.round((c.mp / FIXED_MAX) * 100));
+    const hpPct  = Math.min(100, Math.round((c.hp  / FIXED_MAX) * 100));
+    const mpPct  = Math.min(100, Math.round((c.mp  / FIXED_MAX) * 100));
     const atkPct = Math.min(100, Math.round((c.atk / FIXED_MAX) * 100));
     const mgkPct = Math.min(100, Math.round((c.mgk / FIXED_MAX) * 100));
     const spdPct = Math.min(100, Math.round((c.spd / FIXED_MAX) * 100));
+
     d.innerHTML = `
       <span class="char-sprite">${spriteHtml}</span>
       <div class="char-name">${c.name}</div>
@@ -108,7 +113,7 @@ function selectChar(i) {
   document.getElementById('btn-start').disabled = false;
 }
 
-// ── Calculate final stats (with level, keyblade, items, and permanent bonuses) ────────
+// ── Stats calculation ──────────────────────────────────────
 function getItemById(itemId) {
   return ITEMS.find(i => i.id === itemId) || null;
 }
@@ -121,52 +126,51 @@ function calculateFinalStats() {
   const c = gs.char;
   const baseChar = CHARS.find(ch => ch.id === c.id);
   const level = gs.playerLevel;
-  const baseKeybladeAtk = KEYBLADES[0].atk;
-  
+  const baseKeybladeAtk = KEYBLADES.find(kb => kb.id === 'kingdomkey')?.atk || 20;
+
   let finalStats = {
-    hp:  baseChar.hp + Math.floor((level - 1) * STAT_GROWTH.hp),
+    hp:  baseChar.hp  + Math.floor((level - 1) * STAT_GROWTH.hp),
     atk: baseChar.atk + Math.floor((level - 1) * STAT_GROWTH.atk),
     mgk: baseChar.mgk + Math.floor((level - 1) * STAT_GROWTH.mgk),
     spd: baseChar.spd + Math.floor((level - 1) * STAT_GROWTH.spd),
-    mp:  baseChar.mp + Math.floor((level - 1) * STAT_GROWTH.mp),
+    mp:  baseChar.mp  + Math.floor((level - 1) * STAT_GROWTH.mp),
   };
-  
+
   if (gs.currentKeyblade) {
     finalStats.atk += gs.currentKeyblade.atk - baseKeybladeAtk;
   }
-  
+
   gs.equippedItems.forEach(itemId => {
     const item = getItemById(itemId);
     if (!item) return;
     finalStats[item.stat] += item.bonus;
-    if (item.mp_bonus) finalStats.mp += item.mp_bonus;
+    if (item.mp_bonus)  finalStats.mp  += item.mp_bonus;
     if (item.mgk_bonus) finalStats.mgk += item.mgk_bonus;
   });
-  
+
   if (c.bonusStats) {
-    finalStats.hp += c.bonusStats.hp || 0;
+    finalStats.hp  += c.bonusStats.hp  || 0;
     finalStats.atk += c.bonusStats.atk || 0;
     finalStats.mgk += c.bonusStats.mgk || 0;
     finalStats.spd += c.bonusStats.spd || 0;
-    finalStats.mp += c.bonusStats.mp || 0;
+    finalStats.mp  += c.bonusStats.mp  || 0;
   }
-  
+
   return finalStats;
 }
 
-// ── Update character stats (call after level up or item equip) ─────
 function updateCharStats() {
   const finalStats = calculateFinalStats();
   const c = gs.char;
-  
+
   const oldMaxHp = c.hp;
-  const hpRatio = oldMaxHp > 0 ? (c.currentHp / oldMaxHp) : 1;
-  
-  c.hp = finalStats.hp;
+  const hpRatio  = oldMaxHp > 0 ? (c.currentHp / oldMaxHp) : 1;
+
+  c.hp  = finalStats.hp;
   c.atk = finalStats.atk;
   c.mgk = finalStats.mgk;
   c.spd = finalStats.spd;
-  c.mp = finalStats.mp;
+  c.mp  = finalStats.mp;
   c.currentHp = Math.min(c.hp, Math.max(1, Math.floor(c.hp * hpRatio)));
   c.currentMp = Math.min(c.mp, c.currentMp);
 }
@@ -186,9 +190,9 @@ function toggleEquipItem(itemId) {
   }
   if (gs.equippedItems.length >= 2) {
     showEventOverlay({
-      icon: '⚠️',
+      icon:  '⚠️',
       title: 'Equip Limit Reached',
-      body: 'Only two items can be equipped at the same time. Remove one before equipping another.',
+      body:  'Only two items can be equipped at the same time. Remove one before equipping another.',
       reward: '',
       onClose: () => {}
     });
@@ -207,24 +211,30 @@ function unlockKeyblade(keybladeId) {
   renderMapCanvas();
 }
 
+// ── Start run ──────────────────────────────────────────────
 function startRun() {
   if (selIdx === null) return;
+
   const c = CHARS[selIdx];
-  
+
   gs.char = {
     ...c,
     currentHp: c.hp,
     currentMp: c.mp,
     bonusStats: { hp: 0, atk: 0, mgk: 0, spd: 0, mp: 0 },
   };
-  gs.wins = 0;
-  gs.currentLevel = 0;
-  gs.playerLevel = 1;
-  gs.inventory = [];
-  gs.equippedItems = [];
-  gs.currentKeyblade = KEYBLADES.find(kb => kb.id === 'keyblade');
-  
-  gs.map = generateMap();
+
+  gs.wins            = 0;
+  gs.currentWorldId  = 0;
+  gs.currentLevel    = 0;
+  gs.playerLevel     = 1;
+  gs.inventory       = [];
+  gs.equippedItems   = [];
+  gs.currentKeyblade = KEYBLADES.find(kb => kb.id === 'kingdomkey');
+  gs.currentBattleInfo = null;
+
+  gs.map = generateMap(gs.currentWorldId);
+
   renderMapCanvas();
   showScreen('s-map');
 }
@@ -237,35 +247,40 @@ function handleMapNode(nodeId) {
   gs.pendingNodeId = nodeId;
 
   switch (node.type) {
+
+    case 'start': {
+      // Nodo inicial ya visitado — no hacer nada
+      break;
+    }
+
     case 'battle': {
       const enemy = pickEnemy(node.level, false, false);
-      startBattle(enemy, false);
+      startBattle(enemy, false, false);
       break;
     }
+
     case 'boss': {
-      const enemy = pickEnemy(node.level, true, false);
-      startBattle(enemy, true);
+      const isWorldBoss = node.level === gs.map.levels.length - 1;
+      const enemy = pickEnemy(node.level, true, isWorldBoss);
+      startBattle(enemy, true, isWorldBoss);
       break;
     }
-    case 'end': {
-      const enemy = pickEnemy(node.level, false, true);
-      startBattle(enemy, true);
-      break;
-    }
+
     case 'save': {
       const hpGain = Math.round(gs.char.hp * 0.4);
       const mpGain = Math.round(gs.char.mp * 0.5);
       gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + hpGain);
       gs.char.currentMp = Math.min(gs.char.mp, gs.char.currentMp + mpGain);
       showEventOverlay({
-        icon: '💾',
+        icon:  '💾',
         title: 'Save Point',
-        body: 'The warm light of the save point washes over you. Your strength is restored.',
+        body:  'The warm light of the save point washes over you. Your strength is restored.',
         reward: `+${hpGain} HP · +${mpGain} MP`,
         onClose: () => completeNode(nodeId),
       });
       break;
     }
+
     case 'chest': {
       const rewardIsKeyblade = Math.random() < 0.45;
       if (rewardIsKeyblade) {
@@ -274,77 +289,70 @@ function handleMapNode(nodeId) {
           const choice = possible[Math.floor(Math.random() * possible.length)];
           gs.currentKeyblade = choice;
           showEventOverlay({
-            icon: '📦',
+            icon:  '📦',
             title: 'Keyblade Chest',
-            body: 'A new Keyblade awakens within the chest. Your base attack grows stronger.',
+            body:  'A new Keyblade awakens within the chest. Your base attack grows stronger.',
             reward: `Obtained: ${choice.icon} ${choice.name}`,
             onClose: () => completeNode(nodeId),
           });
           break;
         }
       }
-
       const itemReward = ITEMS[Math.floor(Math.random() * ITEMS.length)];
       addInventoryItem(itemReward.id);
       showEventOverlay({
-        icon: '📦',
+        icon:  '📦',
         title: 'Keyblade Chest',
-        body: 'The Keyblade resonates with the lock. The chest springs open!',
+        body:  'The Keyblade resonates with the lock. The chest springs open!',
         reward: `Found: ${itemReward.icon} ${itemReward.name}`,
         onClose: () => completeNode(nodeId),
       });
       break;
     }
+
     case 'mystery': {
-      const ev = MYSTERY_EVENTS[Math.floor(Math.random() * MYSTERY_EVENTS.length)];
-      let res = '';
+      const ev  = MYSTERY_EVENTS[Math.floor(Math.random() * MYSTERY_EVENTS.length)];
+      let res   = '';
       if (typeof ev.effect === 'function') {
         res = ev.effect(gs) || '';
       } else {
         res = ev.result || '';
       }
       showEventOverlay({
-        icon: ev.icon,
+        icon:  ev.icon,
         title: ev.title,
-        body: ev.body,
+        body:  ev.body,
         reward: res,
         onClose: () => completeNode(nodeId),
       });
       break;
     }
+
     case 'moogle': {
       showEventOverlay({
-        icon: '🐾',
+        icon:  '🐾',
         title: 'Moogle Shop',
-        body: 'Kupo! Welcome to the Moogle Shop! (Shop system coming soon, kupo!)',
+        body:  'Kupo! Welcome to the Moogle Shop! (Shop system coming soon, kupo!)',
         reward: 'Nothing available yet...',
         onClose: () => completeNode(nodeId),
       });
       break;
     }
+
     default:
       completeNode(nodeId);
   }
 }
 
-/** Mark a non-battle node as done and refresh the map */
 function completeNode(nodeId) {
   advanceMap(gs.map, nodeId);
   gs.currentLevel = gs.map.nodes[nodeId].level;
-
-  // Check win condition
-  const node = gs.map.nodes[nodeId];
-  if (node.type === 'end') {
-    showVictoryScreen();
-    return;
-  }
   renderMapCanvas();
   showScreen('s-map');
 }
 
 // ── Event overlay ──────────────────────────────────────────
 function showEventOverlay({ icon, title, body, reward, onClose }) {
-  // Remove existing overlay
   document.querySelectorAll('.event-overlay').forEach(e => e.remove());
 
   const ov = document.createElement('div');
