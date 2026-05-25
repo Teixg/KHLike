@@ -93,15 +93,6 @@ const CHARS = [
     mp:  80,
     atk: 24,
     mgk: 16,
-    spd: 14,
-
-    skills: [
-      { name: 'Cure',        icon: '💚', type: 'heal',   dmg: 50,  mpCost: 20 },
-      { name: 'Strike Raid', icon: '🗡️', type: 'attack', dmg: 35,  mpCost: 15 },
-      { name: 'Fire',        icon: '🔥', type: 'magic',  dmg: 32,  mpCost: 12 },
-    ],
-
-    passive: 'Balanced Fighter',
   },
 
   {
@@ -117,15 +108,6 @@ const CHARS = [
     mp:  60,
     atk: 28,
     mgk: 14,
-    spd: 17,
-
-    skills: [
-      { name: 'Dark Aura',  icon: '🌑', type: 'attack', dmg: 45,  mpCost: 18 },
-      { name: 'Soul Eater', icon: '🗡️', type: 'drain',  dmg: 35,  mpCost: 15 },
-      { name: 'Darkness',   icon: '💜', type: 'magic',  dmg: 38,  mpCost: 14 },
-    ],
-
-    passive: '+15% crit chance',
   },
 ];
 
@@ -146,7 +128,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'shadow',
     name: 'Shadow',
-    emoji: '<img src="assets/enemies/Shadow.png" alt="Shadow" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Shadow.png" alt="Shadow" style="width:45px;height:auto;" />',
+    iconHeight: 60,
     baseHp: 70,
     baseAtk: 16,
     type: 'Heartless',
@@ -156,7 +139,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'soldier',
     name: 'Soldier',
-    emoji: '<img src="assets/enemies/Soldier.png" alt="Soldier" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Soldier.png" alt="Soldier" style="width:45px;height:auto;" />',
+    iconHeight: 64,
     baseHp: 88,
     baseAtk: 21,
     type: 'Heartless',
@@ -166,7 +150,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'guardarmor',
     name: 'Guard Armor',
-    emoji: '<img src="assets/enemies/Guard-Armor.png" alt="Guard Armor" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Guard-Armor.png" alt="Guard Armor" style="width:45px;height:auto;" />',
+    iconHeight: 96,
     baseHp: 650,
     baseAtk: 6,
     type: 'Boss',
@@ -179,7 +164,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'rednocturne',
     name: 'Red Nocturne',
-    emoji: '🔥',
+    icon: '<img src="assets/enemies/Red-Nocturne.png" alt="Red Nocturne" style="width:45px;height:auto;" />',
+    iconHeight: 68,
     baseHp: 165,
     baseAtk: 36,
     type: 'Heartless',
@@ -189,7 +175,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'bluerhapsody',
     name: 'Blue Rhapsody',
-    emoji: '❄️',
+    icon: '<img src="assets/enemies/Blue-Rhapsody.png" alt="Blue Rhapsody" style="width:45px;height:auto;" />',
+    iconHeight: 72,
     baseHp: 180,
     baseAtk: 38,
     type: 'Heartless',
@@ -199,7 +186,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'creeperplant',
     name: 'Creeper Plant',
-    emoji: '🌱',
+    icon: '<img src="assets/enemies/Creeper-Plant.png" alt="Creeper Plant" style="width:45px;height:auto;" />',
+    iconHeight: 76,
     baseHp: 200,
     baseAtk: 42,
     type: 'Heartless',
@@ -209,7 +197,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'trickmaster',
     name: 'Trickmaster',
-    emoji: '🎩',
+    icon: '<img src="assets/enemies/Trickmaster.png" alt="Trickmaster" style="width:45px;height:auto;" />',
+    iconHeight: 100,
     baseHp: 1280,
     baseAtk: 14,
     type: 'Boss',
@@ -222,7 +211,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'powerwild',
     name: 'Powerwild',
-    emoji: '🐒',
+    icon: '<img src="assets/enemies/Powerwild.png" alt="Powerwild" style="width:45px;height:auto;" />',
+    iconHeight: 76,
     baseHp: 290,
     baseAtk: 62,
     type: 'Heartless',
@@ -232,7 +222,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'bouncywild',
     name: 'Bouncywild',
-    emoji: '🦧',
+    icon: '<img src="assets/enemies/Bouncywild.png" alt="Bouncywild" style="width:45px;height:auto;" />',
+    iconHeight: 78,
     baseHp: 328,
     baseAtk: 66,
     type: 'Heartless',
@@ -242,7 +233,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'airsoldier',
     name: 'Air Soldier',
-    emoji: '🦇',
+    icon: '<img src="assets/enemies/Air-soldier.png" alt="Air Soldier" style="width:45px;height:auto;" />',
+    iconHeight: 74,
     baseHp: 310,
     baseAtk: 64,
     type: 'Heartless',
@@ -252,7 +244,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'parasitecage',
     name: 'Parasite Cage',
-    emoji: '🕸️',
+    icon: '<img src="assets/enemies/Parasite-Cage.png" alt="Parasite Cage" style="width:45px;height:auto;" />',
+    iconHeight: 104,
     baseHp: 2000,
     baseAtk: 23,
     type: 'Boss',
@@ -265,7 +258,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'barrelspider',
     name: 'Barrel Spider',
-    emoji: '🕷️',
+    icon: '<img src="assets/enemies/Barrel-Spider.png" alt="Barrel Spider" style="width:45px;height:auto;" />',
+    iconHeight: 70,
     baseHp: 420,
     baseAtk: 88,
     type: 'Heartless',
@@ -275,7 +269,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'pirate',
     name: 'Pirate',
-    emoji: '☠️',
+    icon: '<img src="assets/enemies/Pirate.png" alt="Pirate" style="width:45px;height:auto;" />',
+    iconHeight: 72,
     baseHp: 472,
     baseAtk: 93,
     type: 'Heartless',
@@ -285,7 +280,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'largebody',
     name: 'Large Body',
-    emoji: '<img src="assets/enemies/Large-body.png" alt="Large Body" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Large-body.png" alt="Large Body" style="width:45px;height:auto;" />',
+    iconHeight: 76,
     baseHp: 519,
     baseAtk: 85,
     type: 'Heartless',
@@ -295,7 +291,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'cerberus',
     name: 'Cerberus',
-    emoji: '🐕',
+    icon: '🐕',
+    iconHeight: 98,
     baseHp: 2810,
     baseAtk: 33,
     type: 'Boss',
@@ -308,7 +305,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'bandit',
     name: 'Bandit',
-    emoji: '🗡️',
+    icon: '<img src="assets/enemies/Bandit.png" alt="Bandit" style="width:45px;height:auto;" />',
+    iconHeight: 76,
     baseHp: 580,
     baseAtk: 118,
     type: 'Heartless',
@@ -318,7 +316,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'fatbandit',
     name: 'Fat Bandit',
-    emoji: '🔥',
+    icon: '<img src="assets/enemies/Fat-Bandit.png" alt="Fat Bandit" style="width:45px;height:auto;" />',
+    iconHeight: 78,
     baseHp: 695,
     baseAtk: 123,
     type: 'Heartless',
@@ -328,7 +327,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'wizard',
     name: 'Wizard',
-    emoji: '🪄',
+    icon: '<img src="assets/enemies/Wizard.png" alt="Wizard" style="width:45px;height:auto;" />',
+    iconHeight: 76,
     baseHp: 632,
     baseAtk: 128,
     type: 'Heartless',
@@ -338,7 +338,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'geniejafar',
     name: 'Genie Jafar',
-    emoji: '🧞',
+    icon: '<img src="assets/enemies/Genie-Jafar.png" alt="Genie Jafar" style="width:45px;height:auto;" />',
+    iconHeight: 102,
     baseHp: 3710,
     baseAtk: 45,
     type: 'Boss',
@@ -351,7 +352,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'wightknight',
     name: 'Wight Knight',
-    emoji: '💀',
+    icon: '<img src="assets/enemies/Wight-Knight.png" alt="Wight Knight" style="width:45px;height:auto;" />',
+    iconHeight: 76,
     baseHp: 750,
     baseAtk: 150,
     type: 'Heartless',
@@ -361,7 +363,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'searchghost',
     name: 'Search Ghost',
-    emoji: '👻',
+    icon: '<img src="assets/enemies/Search-Ghost.png" alt="Search Ghost" style="width:45px;height:auto;" />',
+    iconHeight: 72,
     baseHp: 808,
     baseAtk: 156,
     type: 'Heartless',
@@ -371,7 +374,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'gargoyle',
     name: 'Gargoyle',
-    emoji: '🗿',
+    icon: '<img src="assets/enemies/Gargoyle.png" alt="Gargoyle" style="width:45px;height:auto;" />',
+    iconHeight: 80,
     baseHp: 865,
     baseAtk: 145,
     type: 'Heartless',
@@ -381,7 +385,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'oogieboogie',
     name: 'Oogie Boogie',
-    emoji: '🎰',
+    icon: '<img src="assets/enemies/Darkside.png" alt="Oogie Boogie" style="width:45px;height:auto;" />',
+    iconHeight: 106,
     baseHp: 4700,
     baseAtk: 57,
     type: 'Boss',
@@ -394,7 +399,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'defender',
     name: 'Defender',
-    emoji: '🛡️',
+    icon: '<img src="assets/enemies/Defender.png" alt="Defender" style="width:45px;height:auto;" />',
+    iconHeight: 74,
     baseHp: 920,
     baseAtk: 183,
     type: 'Heartless',
@@ -404,7 +410,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'wyvern',
     name: 'Wyvern',
-    emoji: '🐉',
+    icon: '<img src="assets/enemies/Wyvern.png" alt="Wyvern" style="width:45px;height:auto;" />',
+    iconHeight: 84,
     baseHp: 1000,
     baseAtk: 192,
     type: 'Heartless',
@@ -414,7 +421,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'darkball',
     name: 'Darkball',
-    emoji: '⚫',
+    icon: '<img src="assets/enemies/Dark-Ball.png" alt="Dark Ball" style="width:45px;height:auto;" />',
+    iconHeight: 68,
     baseHp: 1071,
     baseAtk: 186,
     type: 'Heartless',
@@ -424,7 +432,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'rikureplica',
     name: 'Riku Replica',
-    emoji: '🌑',
+    icon: '<img src="assets/enemies/Organization-XIII.png" alt="Riku Replica" style="width:45px;height:auto;" />',
+    iconHeight: 100,
     baseHp: 5780,
     baseAtk: 71,
     type: 'Boss',
@@ -437,7 +446,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'invisible',
     name: 'Invisible',
-    emoji: '👁️',
+    icon: '👁️',
+    iconHeight: 76,
     baseHp: 1200,
     baseAtk: 228,
     type: 'Heartless',
@@ -447,7 +457,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'angelstar',
     name: 'Angel Star',
-    emoji: '⭐',
+    icon: '⭐',
+    iconHeight: 72,
     baseHp: 1208,
     baseAtk: 231,
     type: 'Heartless',
@@ -457,7 +468,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'neoshadow',
     name: 'Neo Shadow',
-    emoji: '🌑',
+    icon: '<img src="assets/enemies/Neoshadow.png" alt="Neo Shadow" style="width:45px;height:auto;" />',
+    iconHeight: 82,
     baseHp: 1294,
     baseAtk: 240,
     type: 'Heartless',
@@ -467,7 +479,8 @@ const ENEMY_TEMPLATES = [
   {
     id: 'marluxia',
     name: 'Marluxia',
-    emoji: '🌹',
+    icon: '🌹',
+    iconHeight: 108,
     baseHp: 6950,
     baseAtk: 86,
     type: 'Final Boss',
@@ -496,14 +509,28 @@ const ITEMS = [
 // ═══════════════════════════════════════
 // KEYBLADES
 // ═══════════════════════════════════════
+// Stats derived from Kingdom Hearts: Chain of Memories wiki
+// https://kingdomhearts.fandom.com/wiki/Attack_cards
 
 const KEYBLADES = [
-  { id: 'kingdomkey',  name: 'Kingdom Key',  icon: '🗝️', atk: 20,  description: 'Balanced and reliable.',         passive: '+5% crit chance' },
-  { id: 'jungleking',  name: 'Jungle King',  icon: '🌿', atk: 38,  description: 'Wild and relentless.',           passive: '+10 SPD' },
-  { id: 'olympia',     name: 'Olympia',      icon: '🏛️', atk: 58,  description: 'A weapon for champions.',       passive: 'Heavy attacks deal bonus damage' },
-  { id: 'pumpkinhead', name: 'Pumpkinhead',  icon: '🎃', atk: 75,  description: 'Crits splash nearby enemies.',  passive: 'Crits deal AoE damage' },
-  { id: 'divinerose',  name: 'Divine Rose',  icon: '🌹', atk: 96,  description: 'Forged for brutal strength.',   passive: '+25% boss damage' },
-  { id: 'oblivion',    name: 'Oblivion',     icon: '🗡️', atk: 120, description: 'Darkness incarnate.',           passive: 'Below 30% HP → +40% damage' },
+  { id: 'kingdomkey',       name: 'Kingdom Key',       icon: '<img src="assets/keyblades/Kingdom-key.png" alt="Kingdom Key" style="width:20px;height:auto;" />', atk: 20,  description: 'Balanced and reliable.' },
+  { id: 'wishingstar',      name: 'Wishing Star',      icon: '<img src="assets/keyblades/Wishing-star.png" alt="Wishing Star" style="width:20px;height:auto;" />', atk: 28,  description: 'Not very powerful, but very easy to handle.' },
+  { id: 'ladyluck',         name: 'Lady Luck',         icon: '<img src="assets/keyblades/Lady-luck.png" alt="Lady Luck" style="width:20px;height:auto;" />', atk: 35,  description: 'A balanced weapon that is easy to handle.' },
+  { id: 'crabclaw',         name: 'Crabclaw',          icon: '<img src="assets/keyblades/Crabclaw.png" alt="Crabclaw" style="width:20px;height:auto;" />', atk: 42,  description: 'Easy to handle with impressive recovery.' },
+  { id: 'fairyharp',        name: 'Fairy Harp',        icon: '<img src="assets/keyblades/Fairy-harp.png" alt="Fairy Harp" style="width:20px;height:auto;" />', atk: 48,  description: 'Easy to handle with formidable swing speed.' },
+  { id: 'olympia',          name: 'Olympia',           icon: '<img src="assets/keyblades/Olympia.png" alt="Olympia" style="width:20px;height:auto;" />', atk: 58,  description: 'Powerful with quick recovery after card breaks.' },
+  { id: 'threewishes',      name: 'Three Wishes',      icon: '<img src="assets/keyblades/Three-wishes.png" alt="Three Wishes" style="width:20px;height:auto;" />', atk: 65,  description: 'Fairly strong with a fast swing.' },
+  { id: 'pumpkinhead',      name: 'Pumpkinhead',       icon: '<img src="assets/keyblades/Pumpkinhead.png" alt="Pumpkinhead" style="width:20px;height:auto;" />', atk: 75,  description: 'Easy to handle with fast recovery.' },
+  { id: 'metalchocobo',     name: 'Metal Chocobo',     icon: '<img src="assets/keyblades/Metal-Chocobo.png" alt="Metal Chocobo" style="width:20px;height:auto;" />', atk: 88,  description: 'Special attack card. Breaks physical defenses.' },
+  { id: 'spellbinder',      name: 'Spellbinder',       icon: '<img src="assets/keyblades/Spellbinder.png" alt="Spellbinder" style="width:20px;height:auto;" />', atk: 82,  description: 'Lightning-based special attack card.' },
+  { id: 'lionheart',        name: 'Lionheart',         icon: '<img src="assets/keyblades/Lionheart.png" alt="Lionheart" style="width:20px;height:auto;" />', atk: 90,  description: 'Fire-based special attack card.' },
+  { id: 'divinerose',       name: 'Divine Rose',       icon: '<img src="assets/keyblades/Divine-rose.png" alt="Divine Rose" style="width:20px;height:auto;" />', atk: 98,  description: 'Powerful strike with fast swing.' },
+  { id: 'oathkeeper',       name: 'Oathkeeper',        icon: '<img src="assets/keyblades/Oathkeeper.png" alt="Oathkeeper" style="width:20px;height:auto;" />', atk: 105, description: 'Well-balanced with very powerful thrust.' },
+  { id: 'diamonddust',      name: 'Diamond Dust',      icon: '<img src="assets/keyblades/Diamond-dust.png" alt="Diamond Dust" style="width:20px;height:auto;" />', atk: 110, description: 'Ice-based special attack. Powerful and easy to handle.' },
+  { id: 'onewingedangel',   name: 'One-Winged Angel',  icon: '<img src="assets/keyblades/One-Winged-Angel.png" alt="One-Winged Angel" style="width:20px;height:auto;" />', atk: 115, description: 'Fire-based special attack with exceptional combo finish.' },
+  { id: 'souleater',        name: 'Soul Eater',        icon: '<img src="assets/keyblades/Soul-Eater.png" alt="Soul Eater" style="width:20px;height:auto;" />', atk: 120, description: 'Darkness embraced. A weapon of pure malice.' },
+  { id: 'oblivion',         name: 'Oblivion',          icon: '<img src="assets/keyblades/Oblivion.png" alt="Oblivion" style="width:45px;height:auto;" />', atk: 125, description: 'Breaks physical defenses. First-class strength.' },
+  { id: 'ultimaweapon',     name: 'Ultima Weapon',     icon: '<img src="assets/keyblades/Ultima-weapon.png" alt="Ultima Weapon" style="width:45px;height:auto;" />', atk: 135, description: 'The strongest attack card to be found.' },
 ];
 
 // ═══════════════════════════════════════
@@ -609,7 +636,6 @@ const STAT_GROWTH = {
   hp:  18,   // era 8  → subido para que el jugador aguante los jefes tardíos
   atk:  8,   // era 3  → subido para que el daño crezca con significativamente
   mgk:  3,
-  spd:  1,
   mp:   4,
 };
 

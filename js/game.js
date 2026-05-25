@@ -69,7 +69,6 @@ function renderChars() {
     const mpPct  = Math.min(100, Math.round((c.mp  / FIXED_MAX) * 100));
     const atkPct = Math.min(100, Math.round((c.atk / FIXED_MAX) * 100));
     const mgkPct = Math.min(100, Math.round((c.mgk / FIXED_MAX) * 100));
-    const spdPct = Math.min(100, Math.round((c.spd / FIXED_MAX) * 100));
 
     d.innerHTML = `
       <span class="char-sprite">${spriteHtml}</span>
@@ -95,11 +94,6 @@ function renderChars() {
         <div class="stat-label-left">MAGIC</div>
         <div class="stat-value">${c.mgk}</div>
         <div class="stat-bar stat-mgk"><div class="stat-fill" style="width:${mgkPct}%;"></div></div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-label-left">SPD</div>
-        <div class="stat-value">${c.spd}</div>
-        <div class="stat-bar stat-spd"><div class="stat-fill" style="width:${spdPct}%;"></div></div>
       </div>
     `;
     g.appendChild(d);
@@ -132,7 +126,6 @@ function calculateFinalStats() {
     hp:  baseChar.hp  + Math.floor((level - 1) * STAT_GROWTH.hp),
     atk: baseChar.atk + Math.floor((level - 1) * STAT_GROWTH.atk),
     mgk: baseChar.mgk + Math.floor((level - 1) * STAT_GROWTH.mgk),
-    spd: baseChar.spd + Math.floor((level - 1) * STAT_GROWTH.spd),
     mp:  baseChar.mp  + Math.floor((level - 1) * STAT_GROWTH.mp),
   };
 
@@ -152,7 +145,6 @@ function calculateFinalStats() {
     finalStats.hp  += c.bonusStats.hp  || 0;
     finalStats.atk += c.bonusStats.atk || 0;
     finalStats.mgk += c.bonusStats.mgk || 0;
-    finalStats.spd += c.bonusStats.spd || 0;
     finalStats.mp  += c.bonusStats.mp  || 0;
   }
 
@@ -169,7 +161,6 @@ function updateCharStats() {
   c.hp  = finalStats.hp;
   c.atk = finalStats.atk;
   c.mgk = finalStats.mgk;
-  c.spd = finalStats.spd;
   c.mp  = finalStats.mp;
   c.currentHp = Math.min(c.hp, Math.max(1, Math.floor(c.hp * hpRatio)));
   c.currentMp = Math.min(c.mp, c.currentMp);
@@ -287,25 +278,33 @@ function handleMapNode(nodeId) {
         const possible = KEYBLADES.filter(kb => kb.atk > gs.currentKeyblade.atk);
         if (possible.length > 0) {
           const choice = possible[Math.floor(Math.random() * possible.length)];
-          gs.currentKeyblade = choice;
           showEventOverlay({
             icon:  '📦',
             title: 'Keyblade Chest',
             body:  'A new Keyblade awakens within the chest. Your base attack grows stronger.',
             reward: `Obtained: ${choice.icon} ${choice.name}`,
-            onClose: () => completeNode(nodeId),
+            allowReject: true,
+            onAccept: () => {
+              gs.currentKeyblade = choice;
+              completeNode(nodeId);
+            },
+            onReject: () => completeNode(nodeId),
           });
           break;
         }
       }
       const itemReward = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-      addInventoryItem(itemReward.id);
       showEventOverlay({
         icon:  '📦',
         title: 'Keyblade Chest',
         body:  'The Keyblade resonates with the lock. The chest springs open!',
         reward: `Found: ${itemReward.icon} ${itemReward.name}`,
-        onClose: () => completeNode(nodeId),
+        allowReject: true,
+        onAccept: () => {
+          addInventoryItem(itemReward.id);
+          completeNode(nodeId);
+        },
+        onReject: () => completeNode(nodeId),
       });
       break;
     }
@@ -352,25 +351,50 @@ function completeNode(nodeId) {
 }
 
 // ── Event overlay ──────────────────────────────────────────
-function showEventOverlay({ icon, title, body, reward, onClose }) {
+function showEventOverlay({ icon, title, body, reward, onClose, allowReject, onAccept, onReject }) {
   document.querySelectorAll('.event-overlay').forEach(e => e.remove());
 
   const ov = document.createElement('div');
   ov.className = 'event-overlay';
+  
+  let buttons = '';
+  if (allowReject) {
+    buttons = `
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="btn primary" id="ev-accept-btn">✓ Accept</button>
+        <button class="btn small dark-btn" id="ev-reject-btn">✗ Reject</button>
+      </div>
+    `;
+  } else {
+    buttons = `<button class="btn primary" id="ev-close-btn">Continue</button>`;
+  }
+  
   ov.innerHTML = `
     <div class="event-card">
       <span class="event-icon">${icon}</span>
       <div class="event-title">${title}</div>
       <div class="event-body">${body}</div>
       <div class="event-reward">${reward}</div>
-      <button class="btn primary" id="ev-close-btn">Continue</button>
+      ${buttons}
     </div>
   `;
   document.getElementById('game').appendChild(ov);
-  document.getElementById('ev-close-btn').onclick = () => {
-    ov.remove();
-    if (onClose) onClose();
-  };
+  
+  if (allowReject) {
+    document.getElementById('ev-accept-btn').onclick = () => {
+      ov.remove();
+      if (onAccept) onAccept();
+    };
+    document.getElementById('ev-reject-btn').onclick = () => {
+      ov.remove();
+      if (onReject) onReject();
+    };
+  } else {
+    document.getElementById('ev-close-btn').onclick = () => {
+      ov.remove();
+      if (onClose) onClose();
+    };
+  }
 }
 
 // ── Victory screen ─────────────────────────────────────────

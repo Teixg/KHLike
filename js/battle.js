@@ -76,9 +76,9 @@ function startBattle(enemy, isBoss, isFinal) {
   const levelDisplay = `
     <div style="display:flex;justify-content:space-between;width:100%;">
       <span>${c.name}</span>
-      <span style="color:var(--kh-gold);font-size:11px;">Lv.${gs.playerLevel}</span>
+      <span style="color:#ffffff;font-size:11px;">Lv.${gs.playerLevel}</span>
     </div>
-    <div style="display:flex;justify-content:space-between;width:100%;font-size:10px;color:var(--kh-muted);margin-top:2px;">
+    <div style="display:flex;justify-content:space-between;width:100%;font-size:10px;color:#ffffff;margin-top:2px;">
       <span>Keyblade</span><span>${keybladeName}</span>
     </div>`;
 
@@ -86,7 +86,13 @@ function startBattle(enemy, isBoss, isFinal) {
   document.getElementById('p-sprite').innerHTML = c.emoji;
   document.getElementById('e-name').textContent = enemy.name;
   document.getElementById('e-type').textContent = enemy.type;
-  document.getElementById('e-sprite').innerHTML  = enemy.emoji;
+  document.getElementById('e-sprite').innerHTML  = enemy.icon;
+  
+  // Aplicar tamaño del sprite del enemigo
+  const enemySpriteEl = document.getElementById('e-sprite');
+  if (enemy.iconHeight) {
+    enemySpriteEl.style.fontSize = enemy.iconHeight + 'px';
+  }
 
   updateBattleBars();
   renderCommands();
@@ -196,55 +202,8 @@ function spriteShake(id) {
 }
 
 // ───────────────────────────────────────────────────────────
-// useSkill — sigue disponible aunque el modo auto no lo use
+// enemyTurn
 // ───────────────────────────────────────────────────────────
-
-function useSkill(idx) {
-  if (!gs.battleActive) return;
-  const c  = gs.char;
-  const e  = gs.currentEnemy;
-
-  if (!c.skills || !c.skills[idx]) return;
-  const sk = c.skills[idx];
-
-  if (sk.mpCost > 0 && c.currentMp < sk.mpCost) return;
-  c.currentMp = Math.max(0, c.currentMp - sk.mpCost);
-
-  gs.battleActive = false;
-  renderCommands();
-
-  if (sk.type === 'heal') {
-    const healed = Math.min(c.hp, c.currentHp + Math.abs(sk.dmg)) - c.currentHp;
-    c.currentHp += healed;
-    addLog(`${sk.icon} <b>${sk.name}</b> — Restored <b style="color:#4caf7d;">${healed} HP</b>`, 'log-heal');
-    updateBattleBars();
-    setTimeout(enemyTurn, 700);
-
-  } else if (sk.type === 'drain') {
-    const variance = Math.floor(Math.random() * 8) - 3;
-    const dmg      = Math.max(1, sk.dmg + (c.atk >> 2) + variance);
-    const drain    = Math.round(dmg * 0.4);
-    e.currentHp    = Math.max(0, e.currentHp - dmg);
-    c.currentHp    = Math.min(c.hp, c.currentHp + drain);
-    spriteShake('e-sprite');
-    addLog(`${sk.icon} <b>${sk.name}</b> — ${e.name} takes <b>${dmg}</b> · Drained <b style="color:#4caf7d;">${drain} HP</b>`, 'log-action');
-    updateBattleBars();
-    if (e.currentHp <= 0) { endBattle(true); return; }
-    setTimeout(enemyTurn, 700);
-
-  } else {
-    const variance = Math.floor(Math.random() * 8) - 3;
-    const stat     = sk.type === 'magic' ? c.mgk : c.atk;
-    const dmg      = Math.max(1, sk.dmg + (stat >> 2) + variance);
-    e.currentHp    = Math.max(0, e.currentHp - dmg);
-    spriteShake('e-sprite');
-    const cls = sk.type === 'magic' ? 'log-magic' : 'log-action';
-    addLog(`${sk.icon} <b>${sk.name}</b> — ${e.name} takes <b>${dmg}</b>`, cls);
-    updateBattleBars();
-    if (e.currentHp <= 0) { endBattle(true); return; }
-    setTimeout(enemyTurn, 700);
-  }
-}
 
 function enemyTurn() {
   const c = gs.char, e = gs.currentEnemy;
@@ -282,7 +241,7 @@ function endBattle(won) {
 
     const oldStats = {
       hp: gs.char.hp, atk: gs.char.atk,
-      mgk: gs.char.mgk, spd: gs.char.spd, mp: gs.char.mp,
+      mgk: gs.char.mgk, mp: gs.char.mp,
     };
 
     gs.playerLevel++;
@@ -292,7 +251,6 @@ function endBattle(won) {
       hp:  gs.char.hp  - oldStats.hp,
       atk: gs.char.atk - oldStats.atk,
       mgk: gs.char.mgk - oldStats.mgk,
-      spd: gs.char.spd - oldStats.spd,
       mp:  gs.char.mp  - oldStats.mp,
     };
 
@@ -307,9 +265,15 @@ function endBattle(won) {
     rewardsText += `${statGains.mgk > 0 ? `✨+${statGains.mgk}` : ''} `;
     rewardsText += `${statGains.mp  > 0 ? `💙+${statGains.mp}`  : ''}`;
 
+    // Curación del 20% después de cada batalla
+    const healAmount = Math.ceil(gs.char.hp * 0.15);
+    gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + healAmount);
+    rewardsText += `<br/><span style="color:var(--kh-heart);">💚 +${healAmount} HP recovered</span>`;
+
     rr.innerHTML     = rewardsText;
     rr.style.display = 'block';
     document.getElementById('res-btn').textContent = 'Continue Journey';
+    document.getElementById('res-btn').onclick = () => handleBossReward(gs.currentBattleInfo);
     gs.pendingVictory = true;
 
   } else {
@@ -342,6 +306,9 @@ function afterBattle() {
 
         // Ajustar nivel del jugador al rango del nuevo mundo
         gs.playerLevel = nextWorld.levelRange[0];
+        
+        // Curación completa al cambiar de mundo
+        gs.char.currentHp = gs.char.hp;
 
         console.log(`🌍 World transition: ${currentWorld.name} → ${nextWorld.name}`);
 
@@ -386,4 +353,61 @@ function afterBattle() {
     // Derrota → volver al título
     showScreen('s-title');
   }
+}
+
+// ───────────────────────────────────────────────────────────
+// handleBossReward — Show accept/reject overlay for boss loot
+// ───────────────────────────────────────────────────────────
+
+function handleBossReward(battleInfo) {
+  if (!battleInfo || !battleInfo.isBoss) {
+    // No boss loot - proceed to next stage
+    afterBattle();
+    return;
+  }
+
+  const enemy = gs.currentEnemy;
+  const rewardName = enemy.reward;
+
+  // Check if reward is a keyblade
+  const rewardKeyblade = KEYBLADES.find(kb => kb.name === rewardName);
+  if (rewardKeyblade) {
+    showEventOverlay({
+      icon:  '⚔️',
+      title: 'Boss Keyblade Drop',
+      body:  `${enemy.name} drops its treasured blade. Will you claim it?`,
+      reward: `${rewardKeyblade.icon} ${rewardKeyblade.name} (ATK: ${rewardKeyblade.atk})`,
+      allowReject: true,
+      onAccept: () => {
+        // Only equip if stronger
+        if (rewardKeyblade.atk > gs.currentKeyblade.atk) {
+          gs.currentKeyblade = rewardKeyblade;
+        }
+        afterBattle();
+      },
+      onReject: () => afterBattle(),
+    });
+    return;
+  }
+
+  // Check if reward is an item
+  const rewardItem = ITEMS.find(i => i.name === rewardName);
+  if (rewardItem) {
+    showEventOverlay({
+      icon:  '📦',
+      title: 'Treasure Obtained',
+      body:  `${enemy.name} drops a valuable treasure. Will you take it?`,
+      reward: `${rewardItem.icon} ${rewardItem.name}`,
+      allowReject: true,
+      onAccept: () => {
+        addInventoryItem(rewardItem.id);
+        afterBattle();
+      },
+      onReject: () => afterBattle(),
+    });
+    return;
+  }
+
+  // Unknown reward type - just continue
+  afterBattle();
 }

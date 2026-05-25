@@ -119,37 +119,41 @@
           <!-- Field -->
           <div class="battle-field">
             <!-- Player side -->
-            <div class="fighter-side">
-              <div class="f-name" id="p-name">—</div>
-              <div class="hp-wrap">
-                <div class="hp-row">
-                  <span style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);">HP</span>
-                  <span id="p-hp-txt" style="font-size:12px;">—</span>
-                </div>
-                <div class="hp-track">
-                  <div class="hp-fill" id="p-hp-bar" style="width:100%;background:#4caf7d;"></div>
-                </div>
-                <div class="mp-track">
-                  <div class="mp-fill" id="p-mp-bar" style="width:100%;"></div>
+            <div class="fighter-stack">
+              <div class="f-sprite" id="p-sprite">🗡️</div>
+              <div class="fighter-side">
+                <div class="f-name" id="p-name">—</div>
+                <div class="hp-wrap">
+                  <div class="hp-row">
+                    <span style="font-family:'Cinzel',serif;font-size:9px;color:#ffffff;">HP</span>
+                    <span id="p-hp-txt" style="font-size:12px;color:#ffffff;">—</span>
+                  </div>
+                  <div class="hp-track">
+                    <div class="hp-fill" id="p-hp-bar" style="width:100%;background:#4caf7d;"></div>
+                  </div>
+                  <div class="mp-track">
+                    <div class="mp-fill" id="p-mp-bar" style="width:100%;"></div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="f-sprite" id="p-sprite" style="align-self:flex-end;margin-bottom:4px;">🗡️</div>
             <div class="vs-orb">♥</div>
-            <div class="f-sprite" id="e-sprite" style="align-self:flex-start;margin-top:4px;">👁️</div>
 
             <!-- Enemy side -->
-            <div class="fighter-side right">
-              <div class="f-name" id="e-name">—</div>
-              <div class="f-type-tag" id="e-type">—</div>
-              <div class="hp-wrap">
-                <div class="hp-row">
-                  <span id="e-hp-txt" style="font-size:12px;">—</span>
-                  <span style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);">HP</span>
-                </div>
-                <div class="hp-track">
-                  <div class="hp-fill" id="e-hp-bar" style="width:100%;background:#cc3366;"></div>
+            <div class="fighter-stack right">
+              <div class="f-sprite" id="e-sprite" style="align-self:flex-end;">👁️</div>
+              <div class="fighter-side right">
+                <div class="f-name" id="e-name">—</div>
+                <div class="f-type-tag" id="e-type">—</div>
+                <div class="hp-wrap">
+                  <div class="hp-row">
+                    <span id="e-hp-txt" style="font-size:12px;color:#ffffff;">—</span>
+                    <span style="font-family:'Cinzel',serif;font-size:9px;color:#ffffff;">HP</span>
+                  </div>
+                  <div class="hp-track">
+                    <div class="hp-fill" id="e-hp-bar" style="width:100%;background:#cc3366;"></div>
+                  </div>
                 </div>
               </div>
             </div>

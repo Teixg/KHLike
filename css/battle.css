@@ -19,19 +19,42 @@
   padding: 20px 20px 14px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  min-height: 190px;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 240px;
   position: relative;
   background-position-y: center;
 }
-.fighter-side { display:flex; flex-direction:column; gap:7px; }
+
+/* Fighter stack: sprite on top, info below */
+.fighter-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.fighter-stack.right {
+  align-items: center;
+}
+
+.fighter-side { 
+  display:flex; 
+  flex-direction:column; 
+  gap:7px;
+  background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(201,168,76,0.15);
+  
+}
 .fighter-side.right { align-items:flex-end; }
-.f-name { font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; color:var(--kh-gold2); }
-.f-type-tag { font-size:10px; color:var(--kh-muted); font-style:italic; }
+.f-name { font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; color:#ffffff; }
+.f-type-tag { font-size:10px; color:#ffffff; font-style:italic; }
 
 /* HP / MP bars */
 .hp-wrap { width:175px; }
-.hp-row { display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px; }
+.hp-row { display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px; color:#ffffff; }
 .hp-track { height:9px; background:#0a0a18; border-radius:4px; overflow:hidden; border:1px solid #1a1a30; }
 .hp-fill  { height:100%; border-radius:4px; transition:width .5s; }
 .mp-track { height:5px; background:#0a0a18; border-radius:3px; overflow:hidden; margin-top:4px; }
@@ -39,9 +62,14 @@
 
 /* Sprites */
 .f-sprite {
-  font-size:76px; line-height:1;
+  font-size: 76px;
+  line-height: 1;
   transition: transform .15s;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,.6));
+  min-width: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .f-sprite.shake { animation: shake .3s; }
 .f-sprite.hit   { animation: shake .3s; filter: brightness(2) drop-shadow(0 0 12px #ff4444); }

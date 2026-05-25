@@ -184,39 +184,80 @@ function renderMapSidePanels() {
   const right = document.getElementById('map-panel-right');
   const c = gs.char || { emoji:'—', name:'Unknown', hp:0, currentHp:0, mp:0, currentMp:0 };
   const inventory = Array.isArray(gs.inventory) ? gs.inventory : [];
+  
   if (left) {
+    const hpPercent = c.hp > 0 ? Math.round((c.currentHp / c.hp) * 100) : 0;
+    const mpPercent = c.mp > 0 ? Math.round((c.currentMp / c.mp) * 100) : 0;
+    
     left.innerHTML = `
       <div class="panel-title">Character</div>
       <div class="panel-block">
-      <div class="panel-row"><span class="panel-value">${c.emoji}</span></div>
+        <div class="panel-row"><span class="panel-value" style="font-size:28px;text-align:center;width:100%;">${c.emoji}</span></div>
         <div class="panel-row"><span class="panel-label">Name</span><span class="panel-value">${c.name}</span></div>
-        <div class="panel-row"><span class="panel-label">Level</span><span class="panel-value">${gs.playerLevel}</span></div>
-        <div class="panel-row"><span class="panel-label">HP</span><span class="panel-value">${c.currentHp}/${c.hp}</span></div>
-        <div class="panel-row"><span class="panel-label">MP</span><span class="panel-value">${c.currentMp}/${c.mp}</span></div>
+        <div class="panel-row"><span class="panel-label">Level</span><span class="panel-value">Lv. ${gs.playerLevel}</span></div>
+        <div class="panel-row" style="flex-direction:column;align-items:flex-start;">
+          <span class="panel-label">HP</span>
+          <div class="stat-bar-wrapper">
+            <div class="stat-bar">
+              <div class="stat-bar-fill" style="width:${hpPercent}%;"></div>
+            </div>
+            <div class="stat-text">${c.currentHp}/${c.hp}</div>
+          </div>
+        </div>
+        <div class="panel-row" style="flex-direction:column;align-items:flex-start;">
+          <span class="panel-label">MP</span>
+          <div class="stat-bar-wrapper">
+            <div class="stat-bar mp">
+              <div class="stat-bar-fill" style="width:${mpPercent}%;"></div>
+            </div>
+            <div class="stat-text">${c.currentMp}/${c.mp}</div>
+          </div>
+        </div>
       </div>
     `;
   }
   if (right) {
     const equipped = gs.equippedItems.map(itemId => getItemById(itemId));
     right.innerHTML = `
-      <div class="panel-title">Keyblade</div>
+      <div class="panel-title">⚔ Keyblade</div>
       <div class="panel-block">
-        <div class="panel-row"><span class="panel-label">Equipped</span><span class="panel-value">${gs.currentKeyblade ? `${gs.currentKeyblade.icon} ${gs.currentKeyblade.name}` : 'None'}</span></div>
+        <div class="panel-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+          <span class="panel-label">Equipped</span>
+          <span class="panel-value" style="text-align:left;">${gs.currentKeyblade ? `${gs.currentKeyblade.icon} ${gs.currentKeyblade.name}` : '—'}</span>
+          ${gs.currentKeyblade ? `<span class="stat-text">ATK: +${gs.currentKeyblade.atk}</span>` : ''}
+        </div>
       </div>
-      <div class="panel-title">Equipped Items</div>
+      <div class="panel-title">📦 Items</div>
       <div class="panel-block">
         ${[0,1].map(slot => {
           const item = equipped[slot];
-          return item ? `<div class="panel-row"><span class="panel-label">${item.icon}</span><span class="panel-value">${item.name}</span></div>` : `<div class="panel-row"><span class="panel-label">Slot ${slot + 1}</span><span class="panel-value">Empty</span></div>`;
+          return item ? `
+            <div class="panel-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+              <span class="panel-label">Slot ${slot + 1}</span>
+              <div class="item-chip-equipped">
+                <div class="item-name">${item.icon} ${item.name}</div>
+                <div class="item-stat">${item.stat === 'atk' ? '⚔️' : item.stat === 'mgk' ? '✨' : item.stat === 'hp' ? '❤️' : item.stat === 'mp' ? '💙' : '⚡'} +${item.bonus}${item.mgk_bonus ? ` / ✨+${item.mgk_bonus}` : ''}</div>
+              </div>
+            </div>
+          ` : `<div class="panel-row"><span class="panel-label">Slot ${slot + 1}</span><span class="panel-value">—</span></div>`;
         }).join('')}
       </div>
-      <div class="panel-title">Inventory</div>
+      <div class="panel-title">🎒 Inventory</div>
       <div class="panel-block inventory-block">
         ${inventory.length > 0 ? inventory.map(itemId => {
           const item = getItemById(itemId);
-          const equippedLabel = gs.equippedItems.includes(itemId) ? 'Unequip' : 'Equip';
-          return `<div class="panel-row inventory-row"><span class="item-chip">${item.icon} ${item.name}</span><button class="btn tiny" onclick="toggleEquipItem('${itemId}')">${equippedLabel}</button></div>`;
-        }).join('') : '<div class="panel-row"><span class="panel-label">No items yet</span></div>'}
+          const isEquipped = gs.equippedItems.includes(itemId);
+          const statIcon = item.stat === 'atk' ? '⚔️' : item.stat === 'mgk' ? '✨' : item.stat === 'hp' ? '❤️' : item.stat === 'mp' ? '💙' : '⚡';
+          return `
+            <div class="item-chip-container">
+              <div class="item-chip" onclick="event.stopPropagation();">
+                <div class="item-name">${item.icon} ${item.name}</div>
+                <div class="item-stat">${statIcon} +${item.bonus}${item.mgk_bonus ? ` / ✨+${item.mgk_bonus}` : ''}</div>
+              </div>
+              <button class="item-equip-btn" onclick="toggleEquipItem('${itemId}')" title="${isEquipped ? 'Unequip' : 'Equip'}">${isEquipped ? '✓' : '+'}​</button>
+            </div>
+          `;
+        }).join('') : '<div class="panel-row"><span class="panel-label">No items</span></div>'}
       </div>
     `;
   }
