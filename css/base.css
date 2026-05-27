@@ -1,13 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
+
 @font-face {
-  font-family: 'DFP W5';
-  src: url('../assets/fonts/DFPW5_EUR.ttf') format('truetype');
+  font-family: 'Khgummi';
+  src: url('../assets/fonts/KHGummi.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}  
+@font-face {
+  font-family: 'Khmenu';
+  src: url('../assets/fonts/KHMenu.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
-
 :root {
   --kh-bg: #04050f;
   --kh-panel: #0a0c1e;
@@ -46,7 +53,7 @@ body {
 }
 
 #game {
-  font-family: 'Crimson Text', Georgia, serif;
+  font-family: 'Khmenu', Georgia, serif;
   background: var(--kh-bg);
   color: var(--kh-text);
   width: 100%;
@@ -105,7 +112,7 @@ body {
 }
 
 .event-title {
-  font-family: 'Cinzel', serif;
+  font-family: 'Khgummi', serif;
   font-size: 18px;
   letter-spacing: 2px;
   color: var(--kh-gold);
@@ -121,7 +128,7 @@ body {
 }
 
 .event-reward {
-  font-family: 'Cinzel', serif;
+  font-family: 'Khgummi', serif;
   font-size: 12px;
   color: var(--kh-gold2);
   background: rgba(201, 168, 76, .05);
@@ -251,13 +258,10 @@ body {
   align-items: center;
 }
 
-/* ── Typography helpers ── */
-.cinzel {
-  font-family: 'Cinzel', serif;
-}
+
 
 .kh-logo {
-  font-family: 'DFP W5', 'Cinzel', serif;
+  font-family: 'Khgummi', 'Khmenu', serif;
   font-size: 13px;
   letter-spacing: 6px;
   color: var(--kh-muted);
@@ -265,7 +269,7 @@ body {
 }
 
 .kh-title {
-  font-family: 'DFP W5', 'Cinzel', serif;
+  font-family: 'Khgummi', 'Khmenu', serif;
   font-size: 38px;
   font-weight: 900;
   color: var(--kh-gold);
@@ -275,7 +279,7 @@ body {
 }
 
 .kh-subtitle {
-  font-family: 'Cinzel', serif;
+  font-family: 'Khgummi', 'Khmenu', serif;
   font-size: 11px;
   letter-spacing: 4px;
   color: var(--kh-light);
@@ -283,7 +287,7 @@ body {
 
 /* CoM-style section banner */
 .section-title {
-  font-family: 'DFP W5', 'Cinzel', serif;
+  font-family: 'Khgummi', 'Khmenu', serif;
   font-size: 10px;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -298,6 +302,7 @@ body {
 }
 
 .info-quote {
+  font-family: 'Khmenu', serif;
   max-width: 420px;
   font-style: italic;
   font-size: 15px;
@@ -361,7 +366,7 @@ body {
 
 .btn {
   --btn-glow: rgba(3, 55, 196, 0.8);
-  font-family: 'DFP W5', 'Cinzel', serif;
+  font-family:  'Khmenu', serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -613,7 +618,7 @@ body {
 }
 
 .char-name {
-  font-family: 'Cinzel', serif;
+  font-family: 'Khmenu', serif;
   font-size: 10px;
   color: var(--kh-gold);
   margin-bottom: 3px;
@@ -688,7 +693,7 @@ body {
   padding: 2px 8px;
   border-radius: 10px;
   margin-bottom: 8px;
-  font-family: 'Cinzel', serif;
+  font-family: 'Khmenu', serif;
   letter-spacing: 1px;
 }
 

@@ -13,19 +13,19 @@ if (typeof validateWorldEnemies === 'function') {
 
 // ── Global game state ──────────────────────────────────────
 let gs = {
-  char:            null,
-  map:             null,
-  wins:            0,
-  currentLevel:    0,
-  currentWorldId:  0,
-  inventory:       [],
-  equippedItems:   [],
+  char: null,
+  map: null,
+  wins: 0,
+  currentLevel: 0,
+  currentWorldId: 0,
+  inventory: [],
+  equippedItems: [],
   currentKeyblade: null,
-  playerLevel:     1,
-  pendingNodeId:   null,
-  pendingVictory:  false,
-  battleActive:    false,
-  currentEnemy:    null,
+  playerLevel: 1,
+  pendingNodeId: null,
+  pendingVictory: false,
+  battleActive: false,
+  currentEnemy: null,
   currentBattleInfo: null,
 };
 
@@ -39,10 +39,10 @@ function showScreen(id) {
 function genStars() {
   const c = document.getElementById('stars');
   for (let i = 0; i < 70; i++) {
-    const s  = document.createElement('div');
+    const s = document.createElement('div');
     s.className = 'star';
     const sz = Math.random() * 2 + 0.5;
-    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*2+1).toFixed(1)}s;animation-delay:${(Math.random()*2).toFixed(1)}s;`;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;--d:${(Math.random() * 2 + 1).toFixed(1)}s;animation-delay:${(Math.random() * 2).toFixed(1)}s;`;
     c.appendChild(s);
   }
 }
@@ -65,8 +65,8 @@ function renderChars() {
       : c.emoji;
 
     const FIXED_MAX = 200;
-    const hpPct  = Math.min(100, Math.round((c.hp  / FIXED_MAX) * 100));
-    const mpPct  = Math.min(100, Math.round((c.mp  / FIXED_MAX) * 100));
+    const hpPct = Math.min(100, Math.round((c.hp / FIXED_MAX) * 100));
+    const mpPct = Math.min(100, Math.round((c.mp / FIXED_MAX) * 100));
     const atkPct = Math.min(100, Math.round((c.atk / FIXED_MAX) * 100));
     const mgkPct = Math.min(100, Math.round((c.mgk / FIXED_MAX) * 100));
 
@@ -123,10 +123,10 @@ function calculateFinalStats() {
   const baseKeybladeAtk = KEYBLADES.find(kb => kb.id === 'kingdomkey')?.atk || 20;
 
   let finalStats = {
-    hp:  baseChar.hp  + Math.floor((level - 1) * STAT_GROWTH.hp),
+    hp: baseChar.hp + Math.floor((level - 1) * STAT_GROWTH.hp),
     atk: baseChar.atk + Math.floor((level - 1) * STAT_GROWTH.atk),
     mgk: baseChar.mgk + Math.floor((level - 1) * STAT_GROWTH.mgk),
-    mp:  baseChar.mp  + Math.floor((level - 1) * STAT_GROWTH.mp),
+    mp: baseChar.mp + Math.floor((level - 1) * STAT_GROWTH.mp),
   };
 
   if (gs.currentKeyblade) {
@@ -137,15 +137,15 @@ function calculateFinalStats() {
     const item = getItemById(itemId);
     if (!item) return;
     finalStats[item.stat] += item.bonus;
-    if (item.mp_bonus)  finalStats.mp  += item.mp_bonus;
+    if (item.mp_bonus) finalStats.mp += item.mp_bonus;
     if (item.mgk_bonus) finalStats.mgk += item.mgk_bonus;
   });
 
   if (c.bonusStats) {
-    finalStats.hp  += c.bonusStats.hp  || 0;
+    finalStats.hp += c.bonusStats.hp || 0;
     finalStats.atk += c.bonusStats.atk || 0;
     finalStats.mgk += c.bonusStats.mgk || 0;
-    finalStats.mp  += c.bonusStats.mp  || 0;
+    finalStats.mp += c.bonusStats.mp || 0;
   }
 
   return finalStats;
@@ -156,12 +156,12 @@ function updateCharStats() {
   const c = gs.char;
 
   const oldMaxHp = c.hp;
-  const hpRatio  = oldMaxHp > 0 ? (c.currentHp / oldMaxHp) : 1;
+  const hpRatio = oldMaxHp > 0 ? (c.currentHp / oldMaxHp) : 1;
 
-  c.hp  = finalStats.hp;
+  c.hp = finalStats.hp;
   c.atk = finalStats.atk;
   c.mgk = finalStats.mgk;
-  c.mp  = finalStats.mp;
+  c.mp = finalStats.mp;
   c.currentHp = Math.min(c.hp, Math.max(1, Math.floor(c.hp * hpRatio)));
   c.currentMp = Math.min(c.mp, c.currentMp);
 }
@@ -181,11 +181,11 @@ function toggleEquipItem(itemId) {
   }
   if (gs.equippedItems.length >= 2) {
     showEventOverlay({
-      icon:  '⚠️',
+      icon: '⚠️',
       title: 'Equip Limit Reached',
-      body:  'Only two items can be equipped at the same time. Remove one before equipping another.',
+      body: 'Only two items can be equipped at the same time. Remove one before equipping another.',
       reward: '',
-      onClose: () => {}
+      onClose: () => { }
     });
     return;
   }
@@ -215,12 +215,12 @@ function startRun() {
     bonusStats: { hp: 0, atk: 0, mgk: 0, spd: 0, mp: 0 },
   };
 
-  gs.wins            = 0;
-  gs.currentWorldId  = 0;
-  gs.currentLevel    = 0;
-  gs.playerLevel     = 1;
-  gs.inventory       = [];
-  gs.equippedItems   = [];
+  gs.wins = 0;
+  gs.currentWorldId = 0;
+  gs.currentLevel = 0;
+  gs.playerLevel = 1;
+  gs.inventory = [];
+  gs.equippedItems = [];
   gs.currentKeyblade = KEYBLADES.find(kb => kb.id === 'kingdomkey');
   gs.currentBattleInfo = null;
 
@@ -263,9 +263,9 @@ function handleMapNode(nodeId) {
       gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + hpGain);
       gs.char.currentMp = Math.min(gs.char.mp, gs.char.currentMp + mpGain);
       showEventOverlay({
-        icon:  '💾',
+        icon: "<img src='assets/extras/save.png'></img>",
         title: 'Save Point',
-        body:  'The warm light of the save point washes over you. Your strength is restored.',
+        body: 'The warm light of the save point washes over you. Your strength is restored.',
         reward: `+${hpGain} HP · +${mpGain} MP`,
         onClose: () => completeNode(nodeId),
       });
@@ -275,13 +275,17 @@ function handleMapNode(nodeId) {
     case 'chest': {
       const rewardIsKeyblade = Math.random() < 0.45;
       if (rewardIsKeyblade) {
-        const possible = KEYBLADES.filter(kb => kb.atk > gs.currentKeyblade.atk);
+        const currentWorld = gs.currentWorldId;
+        const possible = KEYBLADES.filter(kb => 
+          kb.atk > gs.currentKeyblade.atk && 
+          (kb.world === undefined || kb.world <= currentWorld)
+        );
         if (possible.length > 0) {
           const choice = possible[Math.floor(Math.random() * possible.length)];
           showEventOverlay({
-            icon:  '📦',
+            icon: '📦',
             title: 'Keyblade Chest',
-            body:  'A new Keyblade awakens within the chest. Your base attack grows stronger.',
+            body: 'A new Keyblade awakens within the chest. Your base attack grows stronger.',
             reward: `Obtained: ${choice.icon} ${choice.name}`,
             allowReject: true,
             onAccept: () => {
@@ -295,9 +299,9 @@ function handleMapNode(nodeId) {
       }
       const itemReward = ITEMS[Math.floor(Math.random() * ITEMS.length)];
       showEventOverlay({
-        icon:  '📦',
+        icon: '📦',
         title: 'Keyblade Chest',
-        body:  'The Keyblade resonates with the lock. The chest springs open!',
+        body: 'The Keyblade resonates with the lock. The chest springs open!',
         reward: `Found: ${itemReward.icon} ${itemReward.name}`,
         allowReject: true,
         onAccept: () => {
@@ -310,17 +314,17 @@ function handleMapNode(nodeId) {
     }
 
     case 'mystery': {
-      const ev  = MYSTERY_EVENTS[Math.floor(Math.random() * MYSTERY_EVENTS.length)];
-      let res   = '';
+      const ev = MYSTERY_EVENTS[Math.floor(Math.random() * MYSTERY_EVENTS.length)];
+      let res = '';
       if (typeof ev.effect === 'function') {
         res = ev.effect(gs) || '';
       } else {
         res = ev.result || '';
       }
       showEventOverlay({
-        icon:  ev.icon,
+        icon: ev.icon,
         title: ev.title,
-        body:  ev.body,
+        body: ev.body,
         reward: res,
         onClose: () => completeNode(nodeId),
       });
@@ -328,13 +332,7 @@ function handleMapNode(nodeId) {
     }
 
     case 'moogle': {
-      showEventOverlay({
-        icon:  '🐾',
-        title: 'Moogle Shop',
-        body:  'Kupo! Welcome to the Moogle Shop! (Shop system coming soon, kupo!)',
-        reward: 'Nothing available yet...',
-        onClose: () => completeNode(nodeId),
-      });
+      showMoogleShop(() => completeNode(nodeId));
       break;
     }
 
@@ -356,7 +354,7 @@ function showEventOverlay({ icon, title, body, reward, onClose, allowReject, onA
 
   const ov = document.createElement('div');
   ov.className = 'event-overlay';
-  
+
   let buttons = '';
   if (allowReject) {
     buttons = `
@@ -368,7 +366,7 @@ function showEventOverlay({ icon, title, body, reward, onClose, allowReject, onA
   } else {
     buttons = `<button class="btn primary" id="ev-close-btn">Continue</button>`;
   }
-  
+
   ov.innerHTML = `
     <div class="event-card">
       <span class="event-icon">${icon}</span>
@@ -379,7 +377,7 @@ function showEventOverlay({ icon, title, body, reward, onClose, allowReject, onA
     </div>
   `;
   document.getElementById('game').appendChild(ov);
-  
+
   if (allowReject) {
     document.getElementById('ev-accept-btn').onclick = () => {
       ov.remove();
@@ -413,6 +411,88 @@ function showVictoryScreen() {
     </div>
   `;
   document.getElementById('game').appendChild(ov);
+}
+
+// ── Moogle Shop ────────────────────────────────────────────
+function showMoogleShop(onClose) {
+  document.querySelectorAll('.event-overlay').forEach(e => e.remove());
+
+  // Seleccionar 2 items aleatorios
+  const shuffled = [...ITEMS].sort(() => Math.random() - 0.5);
+  const item1 = shuffled[0];
+  const item2 = shuffled[1];
+
+  const overlayId = 'moogle-shop-' + Date.now();
+  const ov = document.createElement('div');
+  ov.id = overlayId;
+  ov.className = 'event-overlay';
+  ov.innerHTML = `
+    <div class="event-card" style="max-width:380px;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <img src="assets/npc/Moogle.png" alt="Moogle" style="width:80px;height:auto;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4));" />
+      </div>
+      <div class="event-title" style="text-align:center;">⭐ Moogle Shop</div>
+      <div class="event-body" style="text-align:center;margin-bottom:20px;">Kupo! Choose an item for your journey!</div>
+      
+      <div style="display:flex;gap:12px;margin-bottom:16px;">
+        <div class="shop-item-card" onclick="selectMoogleItem('${item1.id}', '${overlayId}')" style="cursor:pointer;">
+          <div class="shop-item-icon">${item1.icon}</div>
+          <div class="shop-item-name">${item1.name}</div>
+          <div class="shop-item-stat">
+            ${item1.stat === 'atk' ? '⚔️' : item1.stat === 'mgk' ? '✨' : item1.stat === 'hp' ? '❤️' : item1.stat === 'mp' ? '💙' : '⚡'}
+            +${item1.bonus}${item1.mgk_bonus ? ` / ✨+${item1.mgk_bonus}` : ''}
+          </div>
+        </div>
+        
+        <div class="shop-item-card" onclick="selectMoogleItem('${item2.id}', '${overlayId}')" style="cursor:pointer;">
+          <div class="shop-item-icon">${item2.icon}</div>
+          <div class="shop-item-name">${item2.name}</div>
+          <div class="shop-item-stat">
+            ${item2.stat === 'atk' ? '⚔️' : item2.stat === 'mgk' ? '✨' : item2.stat === 'hp' ? '❤️' : item2.stat === 'mp' ? '💙' : '⚡'}
+            +${item2.bonus}${item2.mgk_bonus ? ` / ✨+${item2.mgk_bonus}` : ''}
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn small dark-btn" style="width:100%;" onclick="skipMoogleShop('${overlayId}')">Skip Shopping</button>
+    </div>
+  `;
+  document.getElementById('game').appendChild(ov);
+
+  // Store onClose callback globally for later use
+  window.currentMoogleShopClose = onClose;
+}
+
+function selectMoogleItem(itemId, overlayId) {
+  addInventoryItem(itemId);
+  const item = getItemById(itemId);
+
+  // Remover la tienda
+  const overlay = document.getElementById(overlayId);
+  if (overlay) overlay.remove();
+
+  showEventOverlay({
+    icon: '✨',
+    title: 'Kupo!',
+    body: `You obtained ${item.icon} ${item.name}!`,
+    reward: `${item.stat === 'atk' ? '⚔️' : item.stat === 'mgk' ? '✨' : item.stat === 'hp' ? '❤️' : item.stat === 'mp' ? '💙' : '⚡'} +${item.bonus}`,
+    onClose: () => {
+      renderMapSidePanels();
+      if (window.currentMoogleShopClose) {
+        window.currentMoogleShopClose();
+        window.currentMoogleShopClose = null;
+      }
+    },
+  });
+}
+
+function skipMoogleShop(overlayId) {
+  const overlay = document.getElementById(overlayId);
+  if (overlay) overlay.remove();
+  if (window.currentMoogleShopClose) {
+    window.currentMoogleShopClose();
+    window.currentMoogleShopClose = null;
+  }
 }
 
 // ── Boot ───────────────────────────────────────────────────

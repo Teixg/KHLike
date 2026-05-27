@@ -1,5 +1,30 @@
 # Changelog
 
+## [v0.5.0] - 2026-05-27
+
+### ✨ Features
+- **Functional Moogle Shop**: Replaced placeholder shop with a fully interactive system. Players can choose between 2 randomly offered accessories or skip shopping entirely.
+- **World-based Keyblade Progression**: Chests now generate keyblades matched to the player's current world index or lower, aligning weapon power with progression.
+- **Smart Loot Conversion**: When defeating a boss, if a dropped Keyblade is weaker than the player's currently equipped weapon, it is automatically converted into a random rare accessory.
+
+### 🎨 UI/UX & Aesthetics
+- **Kingdom Hearts Custom Fonts**: Integrated authentic `KHGummi.otf` (Gummi font) and `KHMenu.otf` (Menu font) across all titles, buttons, status bars, and overlays.
+- **CoM-Style Level Up Capsule**: Completely overhauled the battle victory screen with a premium Level Up notification:
+  - Skewed dual-capsule layout (left side for level count, right side for stat increase notifications).
+  - Integrates the active character's sprite (Sora or Riku) floating over the UI.
+  - Micro-animations including slide-in entries and a pulsing red shadow glow.
+- **Moogle Shop Interface**: Custom card layouts featuring hover scaling, gradient overlays, item stat symbols, and Moogle shopkeeper artwork.
+- **Polish & Details**: Replaced text placeholders with visual assets, such as the Save Point icon (`save.png`) and Combat screen heading icon (`key.gif`).
+
+### 🔧 Technical
+- Added `showMoogleShop()`, `selectMoogleItem()`, and `skipMoogleShop()` to manage Moogle transactions.
+- Refactored `endBattle()` to construct and animate the complex Level Up capsule structure and separate secondary reward displays.
+- Modified keyblade chest generation within `handleMapNode()` to enforce world limits.
+- Updated `handleBossReward()` to evaluate keyblade attack values and handle accessory transformation fallback.
+- Added support for `.otf` fonts inside `base.css` with fallback fonts.
+
+---
+
 ## [v0.4.0] - 2026-05-25
 
 ### ✨ Features

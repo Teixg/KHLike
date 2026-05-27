@@ -258,17 +258,40 @@ function endBattle(won) {
     rt.className   = 'result-title result-victory';
     rs.textContent = `${gs.currentEnemy.name} has been defeated.`;
 
-    let rewardsText = `Reward: ${gs.currentEnemy.reward}<br/>`;
-    rewardsText += `<span style="color:var(--kh-gold);font-weight:bold;">Level ${gs.playerLevel}</span> `;
-    rewardsText += `${statGains.hp  > 0 ? `❤️+${statGains.hp}`  : ''} `;
-    rewardsText += `${statGains.atk > 0 ? `⚔️+${statGains.atk}` : ''} `;
-    rewardsText += `${statGains.mgk > 0 ? `✨+${statGains.mgk}` : ''} `;
-    rewardsText += `${statGains.mp  > 0 ? `💙+${statGains.mp}`  : ''}`;
+    let rewardsText = `
+      <div class="levelup-capsule">
+        <div class="levelup-left">
+          <div class="levelup-lvup">LV UP!</div>
+          <div class="levelup-num">${gs.playerLevel}</div>
+        </div>
+        <div class="levelup-right">
+          <div class="levelup-watermark">LEVEL UP</div>
+          <div class="levelup-stats">
+            ${statGains.atk > 0 ? `<div class="levelup-stat-line">Strength increased!</div>` : ''}
+            ${statGains.hp > 0 ? `<div class="levelup-stat-line">Maximum HP increased!</div>` : ''}
+            ${statGains.mgk > 0 ? `<div class="levelup-stat-line">Magic increased!</div>` : ''}
+            ${statGains.mp > 0 ? `<div class="levelup-stat-line">Maximum MP increased!</div>` : ''}
+          </div>
+          <div class="levelup-sprite-container">
+            ${gs.char.id === 'riku'
+              ? `<img src="assets/characters/Riku.png" class="levelup-char-sprite" alt="Riku" />`
+              : `<img src="assets/characters/Sora.png" class="levelup-char-sprite" alt="Sora" />`
+            }
+          </div>
+        </div>
+      </div>
+    `;
 
-    // Curación del 20% después de cada batalla
+    // Curación del 15% después de cada batalla
     const healAmount = Math.ceil(gs.char.hp * 0.15);
     gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + healAmount);
-    rewardsText += `<br/><span style="color:var(--kh-heart);">💚 +${healAmount} HP recovered</span>`;
+
+    rewardsText += `<div class="victory-other-rewards">`;
+    if (gs.currentEnemy.reward) {
+      rewardsText += `<div class="victory-reward-item">🎁 Reward: ${gs.currentEnemy.reward}</div>`;
+    }
+    rewardsText += `<div class="victory-heal-msg">💚 +${healAmount} HP recovered</div>`;
+    rewardsText += `</div>`;
 
     rr.innerHTML     = rewardsText;
     rr.style.display = 'block';
@@ -372,21 +395,35 @@ function handleBossReward(battleInfo) {
   // Check if reward is a keyblade
   const rewardKeyblade = KEYBLADES.find(kb => kb.name === rewardName);
   if (rewardKeyblade) {
-    showEventOverlay({
-      icon:  '⚔️',
-      title: 'Boss Keyblade Drop',
-      body:  `${enemy.name} drops its treasured blade. Will you claim it?`,
-      reward: `${rewardKeyblade.icon} ${rewardKeyblade.name} (ATK: ${rewardKeyblade.atk})`,
-      allowReject: true,
-      onAccept: () => {
-        // Only equip if stronger
-        if (rewardKeyblade.atk > gs.currentKeyblade.atk) {
+    if (rewardKeyblade.atk > gs.currentKeyblade.atk) {
+      showEventOverlay({
+        icon:  '⚔️',
+        title: 'Boss Keyblade Drop',
+        body:  `${enemy.name} drops its treasured blade. Will you claim it?`,
+        reward: `${rewardKeyblade.icon} ${rewardKeyblade.name} (ATK: ${rewardKeyblade.atk})`,
+        allowReject: true,
+        onAccept: () => {
           gs.currentKeyblade = rewardKeyblade;
-        }
-        afterBattle();
-      },
-      onReject: () => afterBattle(),
-    });
+          afterBattle();
+        },
+        onReject: () => afterBattle(),
+      });
+    } else {
+      // The player already has a stronger keyblade. Convert to a random accessory.
+      const rareItem = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      showEventOverlay({
+        icon:  '📦',
+        title: 'Treasure Converted',
+        body:  `You already possess a stronger weapon than the ${rewardKeyblade.name}. The blade's essence condenses into a rare accessory!`,
+        reward: `Obtained: ${rareItem.icon} ${rareItem.name}`,
+        allowReject: true,
+        onAccept: () => {
+          addInventoryItem(rareItem.id);
+          afterBattle();
+        },
+        onReject: () => afterBattle(),
+      });
+    }
     return;
   }
 
