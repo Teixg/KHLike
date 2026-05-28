@@ -79,6 +79,9 @@
 
         </div>
         <div class="map-hud-right">
+          <button id="btn-global-speed" class="btn tiny primary" onclick="toggleBattleSpeed()" style="margin-right: 12px; margin-top: 4px;">
+            <img src="assets/extras/Donald-Duck.png" class="speed-btn-icon" alt="Donald" /> Fast Mode
+          </button>
           <div class="hud-stat">
             FLOOR<span id="hud-level">1</span>
           </div>
@@ -178,9 +181,14 @@
           </div>
         </div>
 
-        <button class="btn small dark-btn" style="margin-top:10px;align-self:flex-start;" onclick="showScreen('s-map')">
-          ← Map (retreat)
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 10px; align-self: flex-start;">
+          <button class="btn small dark-btn" onclick="retreatFromBattle()">
+            ← Map (retreat)
+          </button>
+          <button id="btn-skip-battle" class="btn small primary" onclick="toggleBattleSpeed()">
+            <img src="assets/extras/Donald-Duck.png" class="speed-btn-icon" alt="Donald" /> Fast Mode
+          </button>
+        </div>
       </div>
     </div>
 

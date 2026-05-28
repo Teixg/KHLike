@@ -107,8 +107,14 @@ function startBattle(enemy, isBoss, isFinal) {
 
   gs.currentBattleInfo = { isFinal, enemy };
 
+  const speedBtn = document.getElementById('btn-skip-battle');
+  if (speedBtn) {
+    speedBtn.style.display = 'inline-flex';
+    updateSpeedButtonUI();
+  }
+
   showScreen('s-battle');
-  setTimeout(() => autoBattleStart(), 600);
+  setTimeout(() => autoBattleStart(), 600 * gs.battleSpeed);
 }
 
 // ───────────────────────────────────────────────────────────
@@ -116,41 +122,153 @@ function startBattle(enemy, isBoss, isFinal) {
 // ───────────────────────────────────────────────────────────
 
 function autoBattleStart() {
-  gs.battleActive = true;
+  if (!gs.battleActive) return;
   playerAutoAttack();
+}
+
+function toggleBattleSpeed() {
+  if (gs.battleSpeed === 1) {
+    gs.battleSpeed = 0.25; // 4x faster
+  } else {
+    gs.battleSpeed = 1; // Normal speed
+  }
+  updateSpeedButtonUI();
+}
+
+function updateSpeedButtonUI() {
+  const btnBattle = document.getElementById('btn-skip-battle');
+  const btnGlobal = document.getElementById('btn-global-speed');
+  
+  if (gs.battleSpeed === 1) {
+    if (btnBattle) {
+      btnBattle.innerHTML = '<img src="assets/extras/Donald-Duck.png" class="speed-btn-icon" alt="Donald" /> Fast Mode';
+      btnBattle.className = 'btn small primary';
+    }
+    if (btnGlobal) {
+      btnGlobal.innerHTML = '<img src="assets/extras/Donald-Duck.png" class="speed-btn-icon" alt="Donald" /> Fast Mode';
+      btnGlobal.className = 'btn tiny primary';
+    }
+  } else {
+    if (btnBattle) {
+      btnBattle.innerHTML = '<img src="assets/extras/Goofy.png" class="speed-btn-icon" alt="Goofy" /> Normal Mode';
+      btnBattle.className = 'btn small dark-btn';
+    }
+    if (btnGlobal) {
+      btnGlobal.innerHTML = '<img src="assets/extras/Goofy.png" class="speed-btn-icon" alt="Goofy" /> Normal Mode';
+      btnGlobal.className = 'btn tiny dark-btn';
+    }
+  }
+}
+
+function retreatFromBattle() {
+  gs.battleActive = false;
+  const skipBtn = document.getElementById('btn-skip-battle');
+  if (skipBtn) {
+    skipBtn.style.display = 'none';
+  }
+  showScreen('s-map');
 }
 
 function playerAutoAttack() {
   if (!gs.battleActive) return;
   const c = gs.char, e = gs.currentEnemy;
-
   const finalStats = calculateFinalStats();
+
+  // 1. MP Regeneration (+5 MP on player's turn)
+  c.currentMp = Math.min(c.mp, (c.currentMp || 0) + 5);
+
+  // 2. Spell Casting Checks
+  // A. Cure Spell (when HP < 40% and MP >= 20)
+  if (c.currentHp < c.hp * 0.4 && c.currentMp >= 20) {
+    const healAmount = Math.round(finalStats.mgk * 2.5);
+    c.currentHp = Math.min(c.hp, c.currentHp + healAmount);
+    c.currentMp -= 20;
+    addLog(`💚 <b>${c.name}</b> casts <b>Cure</b>! <span style="color:var(--kh-green); font-weight:bold;">+${healAmount} HP</span> recovered.`, 'log-heal');
+    updateBattleBars();
+    
+    setTimeout(enemyAutoAttack, 700 * gs.battleSpeed);
+    return;
+  }
+
+  // B. Offensive Magic (30% chance when MP >= 15)
+  if (c.currentMp >= 15 && Math.random() < 0.3) {
+    const spellVariance = Math.floor(Math.random() * 6) - 2;
+    const spellDmg = Math.max(1, Math.round(finalStats.mgk * 1.5 + spellVariance));
+    e.currentHp = Math.max(0, e.currentHp - spellDmg);
+    c.currentMp -= 15;
+    spriteShake('e-sprite');
+
+    if (c.id === 'riku') {
+      addLog(`🔮 <b>Riku</b> casts <b>Dark Firaga</b>! Deals <b style="color:#aa44ff;">${spellDmg}</b> magic damage.`, 'log-magic');
+    } else {
+      const spells = [
+        { name: 'Fire', color: '#ff8866', icon: '🔥' },
+        { name: 'Blizzard', color: '#66ccff', icon: '❄️' },
+        { name: 'Thunder', color: '#ffdd00', icon: '⚡' }
+      ];
+      const selectedSpell = spells[Math.floor(Math.random() * spells.length)];
+      addLog(`${selectedSpell.icon} <b>Sora</b> casts <b>${selectedSpell.name}</b>! Deals <b style="color:${selectedSpell.color};">${spellDmg}</b> magic damage.`, 'log-magic');
+    }
+    updateBattleBars();
+
+    if (e.currentHp <= 0) { endBattle(true); return; }
+    setTimeout(enemyAutoAttack, 700 * gs.battleSpeed);
+    return;
+  }
+
+  // 3. Physical Attack
   const variance   = Math.floor(Math.random() * 6) - 2;
   const dmg        = Math.max(1, Math.round(finalStats.atk + variance));
-
   e.currentHp = Math.max(0, e.currentHp - dmg);
   spriteShake('e-sprite');
   addLog(`🗡️ <b>${c.name}</b> attacks for <b style="color:#ff8866;">${dmg}</b>`, 'log-action');
   updateBattleBars();
 
   if (e.currentHp <= 0) { endBattle(true); return; }
-  setTimeout(enemyAutoAttack, 700);
+
+  // 4. Double Strike Check (based on Speed, chance = spd * 0.5%, max 40%)
+  const doubleStrikeChance = Math.min(40, finalStats.spd * 0.5);
+  if (Math.random() * 100 < doubleStrikeChance) {
+    const dVariance = Math.floor(Math.random() * 6) - 2;
+    const doubleDmg = Math.max(1, Math.round(finalStats.atk + dVariance));
+    e.currentHp = Math.max(0, e.currentHp - doubleDmg);
+    spriteShake('e-sprite');
+    addLog(`🗡️ <b>Double Strike!</b> <b>${c.name}</b> attacks again for <b style="color:#ff8866;">${doubleDmg}</b>!`, 'log-action');
+    updateBattleBars();
+
+    if (e.currentHp <= 0) { endBattle(true); return; }
+  }
+
+  setTimeout(enemyAutoAttack, 700 * gs.battleSpeed);
 }
 
 function enemyAutoAttack() {
   if (!gs.battleActive) return;
   const c = gs.char, e = gs.currentEnemy;
+  const finalStats = calculateFinalStats();
 
+  // 1. MP Regeneration (+5 MP when hit)
+  c.currentMp = Math.min(c.mp, (c.currentMp || 0) + 5);
+
+  // 2. Dodge Check (based on Speed, chance = spd * 0.4%, max 35%)
+  const dodgeChance = Math.min(35, finalStats.spd * 0.4);
+  if (Math.random() * 100 < dodgeChance) {
+    addLog(`💨 <b>${c.name}</b> dodges the attack!`, 'log-action');
+    updateBattleBars();
+    setTimeout(playerAutoAttack, 600 * gs.battleSpeed);
+    return;
+  }
+
+  // 3. Enemy Deal Damage
   const variance = Math.floor(Math.random() * 6) - 2;
   const dmg      = Math.max(1, Math.round(e.atk + variance));
-
   c.currentHp = Math.max(0, c.currentHp - dmg);
   spriteShake('p-sprite');
   addLog(`💢 <b>${e.name}</b> attacks for <b style="color:#ff6644;">${dmg}</b>`, 'log-enemy');
   updateBattleBars();
 
   if (c.currentHp <= 0) { endBattle(false); return; }
-  setTimeout(playerAutoAttack, 600);
+  setTimeout(playerAutoAttack, 600 * gs.battleSpeed);
 }
 
 // ───────────────────────────────────────────────────────────
@@ -168,11 +286,29 @@ function updateBattleBars() {
 
   const pb = document.getElementById('p-hp-bar');
   pb.style.width      = pp + '%';
-  pb.style.background = pp > 50 ? '#4caf7d' : pp > 20 ? '#f5c842' : '#cc3366';
+  pb.style.background = pp > 50 
+    ? 'linear-gradient(180deg, #b4ec16 0%, #299a07 100%)' 
+    : pp > 20 
+      ? 'linear-gradient(180deg, #ffd700 0%, #d88a00 100%)' 
+      : 'linear-gradient(180deg, #ff5566 0%, #990011 100%)';
+  pb.style.boxShadow = pp > 50 
+    ? '0 0 8px rgba(180, 236, 22, 0.4)' 
+    : pp > 20 
+      ? '0 0 8px rgba(255, 215, 0, 0.4)' 
+      : '0 0 8px rgba(255, 85, 102, 0.4)';
 
   const eb = document.getElementById('e-hp-bar');
   eb.style.width      = ep + '%';
-  eb.style.background = ep > 50 ? '#cc3366' : ep > 20 ? '#ff8844' : '#ff4444';
+  eb.style.background = ep > 50 
+    ? 'linear-gradient(180deg, #ff6699 0%, #b30047 100%)' 
+    : ep > 20 
+      ? 'linear-gradient(180deg, #ffaa44 0%, #b35500 100%)' 
+      : 'linear-gradient(180deg, #ff3333 0%, #800000 100%)';
+  eb.style.boxShadow = ep > 50 
+    ? '0 0 8px rgba(255, 102, 153, 0.4)' 
+    : ep > 20 
+      ? '0 0 8px rgba(255, 170, 68, 0.4)' 
+      : '0 0 8px rgba(255, 51, 51, 0.4)';
 
   document.getElementById('p-mp-bar').style.width = mp + '%';
 }
@@ -229,6 +365,11 @@ function enemyTurn() {
 function endBattle(won) {
   gs.battleActive = false;
   renderCommands();
+
+  const skipBtn = document.getElementById('btn-skip-battle');
+  if (skipBtn) {
+    skipBtn.style.display = 'none';
+  }
 
   const ov = document.getElementById('battle-result');
   const rt = document.getElementById('res-title');
@@ -288,9 +429,9 @@ function endBattle(won) {
 
     rewardsText += `<div class="victory-other-rewards">`;
     if (gs.currentEnemy.reward) {
-      rewardsText += `<div class="victory-reward-item">🎁 Reward: ${gs.currentEnemy.reward}</div>`;
+      rewardsText += `<div class="victory-reward-item"><img src="assets/extras/reward.png" class="victory-reward-icon" alt="Reward" /> Reward: ${gs.currentEnemy.reward}</div>`;
     }
-    rewardsText += `<div class="victory-heal-msg">💚 +${healAmount} HP recovered</div>`;
+    rewardsText += `<div class="victory-heal-msg"><img src="assets/extras/hpOrb.png" class="victory-heal-icon" alt="HP recovered" /> +${healAmount} HP recovered</div>`;
     rewardsText += `</div>`;
 
     rr.innerHTML     = rewardsText;

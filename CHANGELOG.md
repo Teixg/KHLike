@@ -1,5 +1,36 @@
 # Changelog
 
+## [v0.6.0] - 2026-05-28
+
+### ✨ Features
+- **Magic & MP Combat System**: Integrated active magic spells into combat using `MP` and `MGK` stats:
+  - **Cure Spell**: Automatically casts when player HP is below 40% (heals `mgk * 2.5` HP, costs 20 MP).
+  - **Offensive Spells**: 30% chance when MP >= 15 to cast spells instead of attacking: Sora casts Fire/Blizzard/Thunder, Riku casts Dark Firaga (deals `mgk * 1.5` magic damage, costs 15 MP).
+  - **MP Regeneration**: Gaining `+5 MP` on player action and when receiving hits.
+- **Speed & Agility Combat System**: Re-introduced Speed (`spd`) as a core stat (base: Sora 15, Riku 20; +1 per level):
+  - **Dodge Roll**: Chance (`spd * 0.4%`, max 35%) to dodge enemy attacks, logging `"💨 [Name] dodges the attack!"` and avoiding damage.
+  - **Double Strike**: Chance (`spd * 0.5%`, max 40%) to execute a second consecutive strike on physical attacks.
+- **Revalued Items**: Updated accessories to support the new stats:
+  - `Pañuelo duende` (Elven Bandana) now grants `+8 SPD` (was HP).
+  - `Dije galvanico` (Shock Charm) now grants `+12 MGK` (was HP).
+- **Themed Mystery Events**: Rewrote mystery events in `data.js` to feature Kingdom Hearts characters matching their available assets:
+  - *Namine's Sketchbook* (restores MP), *Aerith's Prayer* (heals HP), *Jack's Spooky Trick* (spooky damage), *Kairi's Wayfinder* (item reward), and *Hercules' Training* (permanent +8 ATK).
+
+### 🎨 UI/UX & Aesthetics
+- **Rectangular Status Bars**: Removed `border-radius` from all status bars (HP, MP, and EXP) across character select, map HUD, map side-panels, and combat screens, matching the classic Kingdom Hearts layout.
+- **Thicker Status Bars**: Increased status bar heights for better visibility (character select to 18px, group health HUD to 10px, map side-panels to 12px, combat HP to 14px, and combat MP to 9px).
+- **Victory Screen Icons**: Replaced victory screen reward emojis (`🎁`, `💚`) with custom image assets (`assets/extras/reward.png` and `assets/extras/hpOrb.png`) and vertically centered layout.
+- **Character Icons for Speed Control**: The Speed Mode buttons now feature character face icons: **Donald Duck** representing Fast Mode, and **Goofy** representing Normal Mode.
+- **Map Layout Polish**: Added `18px` top padding to `.map-body` to separate exploration panels and the map area from the sticky top HUD.
+
+### 🔧 Technical
+- Added `toggleBattleSpeed()` and `updateSpeedButtonUI()` to toggle `gs.battleSpeed` (normal speed `1x`, fast speed `4x` with delay multiplier `0.25`).
+- Sincronized speed preference globally across map HUD and battle screens, preserving the setting between fights.
+- Added `retreatFromBattle()` to clean up auto-attack timeouts when leaving a battle, resolving a background battle execution bug.
+- Added permanent `spd` tracking and rendering on the character select screen and the map's left side-panel under a new **📊 Stats** block.
+
+---
+
 ## [v0.5.0] - 2026-05-27
 
 ### ✨ Features

@@ -81,31 +81,34 @@
 }
 
 .hp-track {
-  height: 9px;
+  height: 14px;
   background: #0a0a18;
-  border-radius: 4px;
+  border-radius: 0;
   overflow: hidden;
   border: 1px solid #1a1a30;
 }
 
 .hp-fill {
   height: 100%;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #b4ec16 0%, #299a07 100%);
+  box-shadow: 0 0 8px rgba(180, 236, 22, 0.4);
+  border-radius: 0;
   transition: width .5s;
 }
 
 .mp-track {
-  height: 5px;
+  height: 9px;
   background: #0a0a18;
-  border-radius: 3px;
+  border-radius: 0;
   overflow: hidden;
   margin-top: 4px;
 }
 
 .mp-fill {
   height: 100%;
-  background: var(--kh-blue);
-  border-radius: 3px;
+  background: linear-gradient(180deg, #00bdf6 0%, #151db6 100%);
+  box-shadow: 0 0 8px rgba(0, 189, 246, 0.4);
+  border-radius: 0;
   transition: width .4s;
 }
 
@@ -490,10 +493,23 @@
 
 .victory-reward-item {
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .victory-heal-msg {
   color: var(--kh-green);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.victory-reward-icon,
+.victory-heal-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 /* Animations */

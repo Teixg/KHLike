@@ -89,10 +89,11 @@ const CHARS = [
     typeName: 'Light',
     typeColor: '#c9a84c',
 
-    hp:  130,
-    mp:  80,
+    hp: 130,
+    mp: 80,
     atk: 24,
     mgk: 16,
+    spd: 15,
   },
 
   {
@@ -104,10 +105,11 @@ const CHARS = [
     typeName: 'Dark',
     typeColor: '#9966ff',
 
-    hp:  115,
-    mp:  60,
+    hp: 115,
+    mp: 60,
     atk: 28,
     mgk: 14,
+    spd: 20,
   },
 ];
 
@@ -263,7 +265,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 420,
     baseAtk: 88,
     type: 'Heartless',
-    reward: 'Mythril Shard',
+    reward: 'Anillo de experto (+6)',
     worldId: 3,
   },
   {
@@ -379,7 +381,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 865,
     baseAtk: 145,
     type: 'Heartless',
-    reward: 'Dark Crystal',
+    reward: 'Plenaflor',
     worldId: 5,
   },
   {
@@ -404,7 +406,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 920,
     baseAtk: 183,
     type: 'Heartless',
-    reward: 'Protect Chain',
+    reward: 'Banda de poder',
     worldId: 6,
   },
   {
@@ -451,7 +453,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 1200,
     baseAtk: 228,
     type: 'Heartless',
-    reward: 'Orichalcum',
+    reward: 'Anillo oricalco',
     worldId: 7,
   },
   {
@@ -492,18 +494,34 @@ const ENEMY_TEMPLATES = [
 ];
 
 // ═══════════════════════════════════════
+// STAT ICONS
+// ═══════════════════════════════════════
+
+const STAT_ICONS = {
+  hp: '<img src="assets/extras/Hp-up.png" alt="HP" class="stat-icon-img" />',
+  atk: '<img src="assets/extras/DmgUp.png" alt="ATK" class="stat-icon-img" />',
+  mp: '💙',
+  mgk: '✨',
+  spd: '⚡'
+};
+
+// ═══════════════════════════════════════
 // ITEMS
 // ═══════════════════════════════════════
 
 const ITEMS = [
-  { id: 'powerwild-fang', name: 'Powerwild Fang',  icon: '🦴', stat: 'atk', bonus: 12 },
-  { id: 'mythril-shard',  name: 'Mythril Shard',   icon: '✨', stat: 'atk', bonus: 10, mgk_bonus: 6 },
-  { id: 'heartless-gem',  name: 'Heartless Gem',   icon: '🖤', stat: 'atk', bonus: 18 },
-  { id: 'dark-crystal',   name: 'Dark Crystal',    icon: '🔮', stat: 'mgk', bonus: 18 },
-  { id: 'protect-chain',  name: 'Protect Chain',   icon: '🛡️', stat: 'hp',  bonus: 120 },
-  { id: 'gaia-bangle',    name: 'Gaia Bangle',     icon: '📿', stat: 'hp',  bonus: 180 },
-  { id: 'omega-ether',    name: 'Omega Ether',     icon: '💙', stat: 'mp',  bonus: 40  },
-  { id: 'shadow-anklet',  name: 'Shadow Anklet',   icon: '⚡', stat: 'spd', bonus: 8   },
+  { id: 'panuelo-duende', name: 'Pañuelo duende', icon: '<img src="assets/items/Elven-Bandana.webp" alt="Pañuelo duende" class="item-icon-img" />', stat: 'spd', bonus: 8 },
+  { id: 'cinto-protecto', name: 'Cinto protecto', icon: '<img src="assets/items/Protect-Belt.webp" alt="Cinto protecto" class="item-icon-img" />', stat: 'hp', bonus: 90 },
+  { id: 'banda-poder', name: 'Banda de poder', icon: '<img src="assets/items/Power-band.webp" alt="Banda de poder" class="item-icon-img" />', stat: 'hp', bonus: 120 },
+  { id: 'cadena-aegis', name: 'Cadena de aegis', icon: '<img src="assets/items/Aegis-Chain.webp" alt="Cadena de aegis" class="item-icon-img" />', stat: 'hp', bonus: 150 },
+  { id: 'cadena-cosmica', name: 'Cadena Cosmica', icon: '<img src="assets/items/Cosmic-chain.webp" alt="Cadena Cosmica" class="item-icon-img" />', stat: 'hp', bonus: 200 },
+  { id: 'dije-galvanico', name: 'Dije galvanico', icon: '<img src="assets/items/Shock-Charm.webp" alt="Dije galvanico" class="item-icon-img" />', stat: 'mgk', bonus: 12 },
+  { id: 'anillo-experto-6', name: 'Anillo de experto (+6)', icon: '<img src="assets/items/Expert-ring.webp" alt="Anillo de experto (+6)" class="item-icon-img" />', stat: 'atk', bonus: 12 },
+  { id: 'plenaflor', name: 'Plenaflor', icon: '<img src="assets/items/Full-Bloom.webp" alt="Plenaflor" class="item-icon-img" />', stat: 'atk', bonus: 18 },
+  { id: 'cadena-nocturna', name: 'Cadena nocturna', icon: '<img src="assets/items/Midnight-Anklet.webp" alt="Cadena nocturna" class="item-icon-img" />', stat: 'hp', bonus: 130 },
+  { id: 'anillo-oricalco', name: 'Anillo oricalco', icon: '<img src="assets/items/Orichalcum-Ring.webp" alt="Anillo oricalco" class="item-icon-img" />', stat: 'atk', bonus: 14 },
+  { id: 'talisman-estelar', name: 'Talisman estelar', icon: '<img src="assets/items/Star-Charm.webp" alt="Talisman estelar" class="item-icon-img" />', stat: 'atk', bonus: 22 },
+  { id: 'anillo-experto-7', name: 'Anillo de experto (+7)', icon: '<img src="assets/items/Master\'s-Ring.webp" alt="Anillo de experto (+7)" class="item-icon-img" />', stat: 'atk', bonus: 15 },
 ];
 
 // ═══════════════════════════════════════
@@ -513,25 +531,24 @@ const ITEMS = [
 // https://kingdomhearts.fandom.com/wiki/Attack_cards
 
 const KEYBLADES = [
-  { id: 'kingdomkey',       name: 'Kingdom Key',       icon: '<img src="assets/keyblades/Kingdom-key.png" alt="Kingdom Key" style="width:20px;height:auto;" />', atk: 20,  world: 0, description: 'Balanced and reliable.' },
-  { id: 'wishingstar',      name: 'Wishing Star',      icon: '<img src="assets/keyblades/Wishing-star.png" alt="Wishing Star" style="width:20px;height:auto;" />', atk: 28,  world: 0, description: 'Not very powerful, but very easy to handle.' },
-  { id: 'ladyluck',         name: 'Lady Luck',         icon: '<img src="assets/keyblades/Lady-luck.png" alt="Lady Luck" style="width:20px;height:auto;" />', atk: 35,  world: 1, description: 'A balanced weapon that is easy to handle.' },
-  { id: 'jungleking',       name: 'Jungle King',       icon: '🌿',                                                                                                 atk: 38,  world: 2, description: 'A keyblade with long reach and a wild design.' },
-  { id: 'crabclaw',         name: 'Crabclaw',          icon: '<img src="assets/keyblades/Crabclaw.png" alt="Crabclaw" style="width:20px;height:auto;" />', atk: 42,  world: 2, description: 'Easy to handle with impressive recovery.' },
-  { id: 'fairyharp',        name: 'Fairy Harp',        icon: '<img src="assets/keyblades/Fairy-harp.png" alt="Fairy Harp" style="width:20px;height:auto;" />', atk: 48,  world: 3, description: 'Easy to handle with formidable swing speed.' },
-  { id: 'olympia',          name: 'Olympia',           icon: '<img src="assets/keyblades/Olympia.png" alt="Olympia" style="width:20px;height:auto;" />', atk: 58,  world: 3, description: 'Powerful with quick recovery after card breaks.' },
-  { id: 'threewishes',      name: 'Three Wishes',      icon: '<img src="assets/keyblades/Three-wishes.png" alt="Three Wishes" style="width:20px;height:auto;" />', atk: 65,  world: 4, description: 'Fairly strong with a fast swing.' },
-  { id: 'pumpkinhead',      name: 'Pumpkinhead',       icon: '<img src="assets/keyblades/Pumpkinhead.png" alt="Pumpkinhead" style="width:20px;height:auto;" />', atk: 75,  world: 5, description: 'Easy to handle with fast recovery.' },
-  { id: 'spellbinder',      name: 'Spellbinder',       icon: '<img src="assets/keyblades/Spellbinder.png" alt="Spellbinder" style="width:20px;height:auto;" />', atk: 82,  world: 5, description: 'Lightning-based special attack card.' },
-  { id: 'metalchocobo',     name: 'Metal Chocobo',     icon: '<img src="assets/keyblades/Metal-Chocobo.png" alt="Metal Chocobo" style="width:20px;height:auto;" />', atk: 88,  world: 6, description: 'Special attack card. Breaks physical defenses.' },
-  { id: 'lionheart',        name: 'Lionheart',         icon: '<img src="assets/keyblades/Lionheart.png" alt="Lionheart" style="width:20px;height:auto;" />', atk: 90,  world: 6, description: 'Fire-based special attack card.' },
-  { id: 'divinerose',       name: 'Divine Rose',       icon: '<img src="assets/keyblades/Divine-rose.png" alt="Divine Rose" style="width:20px;height:auto;" />', atk: 98,  world: 6, description: 'Powerful strike with fast swing.' },
-  { id: 'oathkeeper',       name: 'Oathkeeper',        icon: '<img src="assets/keyblades/Oathkeeper.png" alt="Oathkeeper" style="width:20px;height:auto;" />', atk: 105, world: 6, description: 'Well-balanced with very powerful thrust.' },
-  { id: 'diamonddust',      name: 'Diamond Dust',      icon: '<img src="assets/keyblades/Diamond-dust.png" alt="Diamond Dust" style="width:20px;height:auto;" />', atk: 110, world: 7, description: 'Ice-based special attack. Powerful and easy to handle.' },
-  { id: 'onewingedangel',   name: 'One-Winged Angel',  icon: '<img src="assets/keyblades/One-Winged-Angel.png" alt="One-Winged Angel" style="width:20px;height:auto;" />', atk: 115, world: 7, description: 'Fire-based special attack with exceptional combo finish.' },
-  { id: 'souleater',        name: 'Soul Eater',        icon: '<img src="assets/keyblades/Soul-Eater.png" alt="Soul Eater" style="width:20px;height:auto;" />', atk: 120, world: 7, description: 'Darkness embraced. A weapon of pure malice.' },
-  { id: 'oblivion',         name: 'Oblivion',          icon: '<img src="assets/keyblades/Oblivion.png" alt="Oblivion" style="width:45px;height:auto;" />', atk: 125, world: 7, description: 'Breaks physical defenses. First-class strength.' },
-  { id: 'ultimaweapon',     name: 'Ultima Weapon',     icon: '<img src="assets/keyblades/Ultima-weapon.png" alt="Ultima Weapon" style="width:45px;height:auto;" />', atk: 135, world: 7, description: 'The strongest attack card to be found.' },
+  { id: 'kingdomkey', name: 'Kingdom Key', icon: '<img src="assets/keyblades/Kingdom-key.png" alt="Kingdom Key" style="width:20px;height:auto;" />', atk: 20, world: 0, description: 'Balanced and reliable.' },
+  { id: 'wishingstar', name: 'Wishing Star', icon: '<img src="assets/keyblades/Wishing-star.png" alt="Wishing Star" style="width:20px;height:auto;" />', atk: 28, world: 0, description: 'Not very powerful, but very easy to handle.' },
+  { id: 'ladyluck', name: 'Lady Luck', icon: '<img src="assets/keyblades/Lady-luck.png" alt="Lady Luck" style="width:20px;height:auto;" />', atk: 35, world: 1, description: 'A balanced weapon that is easy to handle.' },
+  { id: 'crabclaw', name: 'Crabclaw', icon: '<img src="assets/keyblades/Crabclaw.png" alt="Crabclaw" style="width:20px;height:auto;" />', atk: 42, world: 2, description: 'Easy to handle with impressive recovery.' },
+  { id: 'fairyharp', name: 'Fairy Harp', icon: '<img src="assets/keyblades/Fairy-harp.png" alt="Fairy Harp" style="width:20px;height:auto;" />', atk: 48, world: 3, description: 'Easy to handle with formidable swing speed.' },
+  { id: 'olympia', name: 'Olympia', icon: '<img src="assets/keyblades/Olympia.png" alt="Olympia" style="width:20px;height:auto;" />', atk: 58, world: 3, description: 'Powerful with quick recovery after card breaks.' },
+  { id: 'threewishes', name: 'Three Wishes', icon: '<img src="assets/keyblades/Three-wishes.png" alt="Three Wishes" style="width:20px;height:auto;" />', atk: 65, world: 4, description: 'Fairly strong with a fast swing.' },
+  { id: 'pumpkinhead', name: 'Pumpkinhead', icon: '<img src="assets/keyblades/Pumpkinhead.png" alt="Pumpkinhead" style="width:20px;height:auto;" />', atk: 75, world: 5, description: 'Easy to handle with fast recovery.' },
+  { id: 'spellbinder', name: 'Spellbinder', icon: '<img src="assets/keyblades/Spellbinder.png" alt="Spellbinder" style="width:20px;height:auto;" />', atk: 82, world: 5, description: 'Lightning-based special attack card.' },
+  { id: 'metalchocobo', name: 'Metal Chocobo', icon: '<img src="assets/keyblades/Metal-Chocobo.png" alt="Metal Chocobo" style="width:20px;height:auto;" />', atk: 88, world: 6, description: 'Special attack card. Breaks physical defenses.' },
+  { id: 'lionheart', name: 'Lionheart', icon: '<img src="assets/keyblades/Lionheart.png" alt="Lionheart" style="width:20px;height:auto;" />', atk: 90, world: 6, description: 'Fire-based special attack card.' },
+  { id: 'divinerose', name: 'Divine Rose', icon: '<img src="assets/keyblades/Divine-rose.png" alt="Divine Rose" style="width:20px;height:auto;" />', atk: 98, world: 6, description: 'Powerful strike with fast swing.' },
+  { id: 'oathkeeper', name: 'Oathkeeper', icon: '<img src="assets/keyblades/Oathkeeper.png" alt="Oathkeeper" style="width:20px;height:auto;" />', atk: 105, world: 6, description: 'Well-balanced with very powerful thrust.' },
+  { id: 'diamonddust', name: 'Diamond Dust', icon: '<img src="assets/keyblades/Diamond-dust.png" alt="Diamond Dust" style="width:20px;height:auto;" />', atk: 110, world: 7, description: 'Ice-based special attack. Powerful and easy to handle.' },
+  { id: 'onewingedangel', name: 'One-Winged Angel', icon: '<img src="assets/keyblades/One-Winged-Angel.png" alt="One-Winged Angel" style="width:20px;height:auto;" />', atk: 115, world: 7, description: 'Fire-based special attack with exceptional combo finish.' },
+  { id: 'souleater', name: 'Soul Eater', icon: '<img src="assets/keyblades/Soul-Eater.png" alt="Soul Eater" style="width:20px;height:auto;" />', atk: 120, world: 7, description: 'Darkness embraced. A weapon of pure malice.' },
+  { id: 'oblivion', name: 'Oblivion', icon: '<img src="assets/keyblades/Oblivion.png" alt="Oblivion" style="width:45px;height:auto;" />', atk: 125, world: 7, description: 'Breaks physical defenses. First-class strength.' },
+  { id: 'ultimaweapon', name: 'Ultima Weapon', icon: '<img src="assets/keyblades/Ultima-weapon.png" alt="Ultima Weapon" style="width:45px;height:auto;" />', atk: 135, world: 7, description: 'The strongest attack card to be found.' },
 ];
 
 // ═══════════════════════════════════════
@@ -540,18 +557,18 @@ const KEYBLADES = [
 
 const MYSTERY_EVENTS = [
   {
-    icon: '📜',
-    title: 'Ancient Tome',
-    body: 'An old magical tome radiates power.',
+    icon: '<img src="assets/events/Namine.png" alt="Namine" />',
+    title: 'Namine\'s Sketchbook',
+    body: '"I\'ll draw a new memory in your heart..." Namine\'s sketching replenishes your magical energy.',
     effect: (gs) => {
       gs.char.currentMp = gs.char.mp;
       return '+Full MP restored';
     }
   },
   {
-    icon: '🍖',
-    title: 'Campfire Rest',
-    body: 'You rest beside a warm fire.',
+    icon: '<img src="assets/events/Aerith.png" alt="Aerith" />',
+    title: 'Aerith\'s Prayer',
+    body: '"You\'ll be okay." Aerith offers a warm prayer, restoring your vitality.',
     effect: (gs) => {
       const gain = Math.round(gs.char.hp * 0.25);
       gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + gain);
@@ -559,9 +576,9 @@ const MYSTERY_EVENTS = [
     }
   },
   {
-    icon: '⚔️',
-    title: 'Heartless Ambush',
-    body: 'Darkness surrounds you!',
+    icon: '<img src="assets/events/Jack-Skellington.png" alt="Jack Skellington" />',
+    title: 'Jack\'s Spooky Trick',
+    body: '"Happy Halloween!" Jack Skellington shows you a terrifying scare package that startles you!',
     effect: (gs) => {
       const dmg = Math.round(gs.char.hp * 0.12);
       gs.char.currentHp = Math.max(1, gs.char.currentHp - dmg);
@@ -569,9 +586,9 @@ const MYSTERY_EVENTS = [
     }
   },
   {
-    icon: '💰',
-    title: 'Moogle Stash',
-    body: 'A hidden stash of treasures appears.',
+    icon: '<img src="assets/events/Kairi.png" alt="Kairi" />',
+    title: 'Kairi\'s Wayfinder',
+    body: '"Take this. It\'s a lucky charm." Kairi gives you a token of friendship.',
     effect: (gs) => {
       const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
       gs.inventory.push(item.id);
@@ -579,9 +596,9 @@ const MYSTERY_EVENTS = [
     }
   },
   {
-    icon: '🌟',
-    title: 'Power Awakening',
-    body: 'Your heart grows stronger.',
+    icon: '<img src="assets/events/Hercules.png" alt="Hercules" />',
+    title: 'Hercules\' Training',
+    body: '"Rule number one: a hero never gives up!" Hercules helps you train to unlock your true strength.',
     effect: (gs) => {
       gs.char.bonusStats.atk += 8;
       updateCharStats();
@@ -595,16 +612,16 @@ const MYSTERY_EVENTS = [
 // ═══════════════════════════════════════
 
 const NODE_CONFIGS = {
-  start:        { icon: '<img src="assets/nodes/Start1.png" alt="Start" style="width:48px;height:auto;" />',      label: 'Start',          color: 'var(--kh-gold)'  },
-  battle:       { icon: '<img src="assets/nodes/Battle1.png" alt="Battle" style="width:48px;height:auto;" />',    label: 'Battle',         color: 'var(--kh-gold)'  },
-  elite:        { icon: '💀',                                                                                       label: 'Elite Battle',   color: '#ff4444'         },
-  boss:         { icon: '<img src="assets/nodes/Boss1.png" alt="Boss" style="width:48px;height:auto;" />',        label: 'Boss',           color: 'var(--kh-heart)' },
-  save:         { icon: '<img src="assets/nodes/Save1.png" alt="Save" style="width:48px;height:auto;" />',        label: 'Save Point',     color: 'var(--kh-green)' },
-  chest:        { icon: '<img src="assets/nodes/Chest1.png" alt="Chest" style="width:48px;height:auto;" />',      label: 'Keyblade Chest', color: 'var(--kh-blue)'  },
-  mystery:      { icon: '<img src="assets/nodes/Secret1.png" alt="Mystery" style="width:48px;height:auto;" />',   label: 'Mystery',        color: 'var(--kh-dark)'  },
-  moogle:       { icon: '<img src="assets/nodes/Mogushop1.png" alt="Moogle" style="width:48px;height:auto;" />', label: 'Moogle Shop',    color: 'var(--kh-ice)'   },
-  organization: { icon: '🌹',                                                                                       label: 'Organization XIII', color: '#aa00ff'      },
-  end:          { icon: '<img src="assets/nodes/Boss1.png" alt="Final Boss" style="width:48px;height:auto;" />',  label: 'Final Boss',     color: '#ff0033'         },
+  start: { icon: '<img src="assets/nodes/Start1.png" alt="Start" style="width:48px;height:auto;" />', label: 'Start', color: 'var(--kh-gold)' },
+  battle: { icon: '<img src="assets/nodes/Battle1.png" alt="Battle" style="width:48px;height:auto;" />', label: 'Battle', color: 'var(--kh-gold)' },
+  elite: { icon: '💀', label: 'Elite Battle', color: '#ff4444' },
+  boss: { icon: '<img src="assets/nodes/Boss1.png" alt="Boss" style="width:48px;height:auto;" />', label: 'Boss', color: 'var(--kh-heart)' },
+  save: { icon: '<img src="assets/nodes/Save1.png" alt="Save" style="width:48px;height:auto;" />', label: 'Save Point', color: 'var(--kh-green)' },
+  chest: { icon: '<img src="assets/nodes/Chest1.png" alt="Chest" style="width:48px;height:auto;" />', label: 'Keyblade Chest', color: 'var(--kh-blue)' },
+  mystery: { icon: '<img src="assets/nodes/Secret1.png" alt="Mystery" style="width:48px;height:auto;" />', label: 'Mystery', color: 'var(--kh-dark)' },
+  moogle: { icon: '<img src="assets/nodes/Mogushop1.png" alt="Moogle" style="width:48px;height:auto;" />', label: 'Moogle Shop', color: 'var(--kh-ice)' },
+  organization: { icon: '🌹', label: 'Organization XIII', color: '#aa00ff' },
+  end: { icon: '<img src="assets/nodes/Boss1.png" alt="Final Boss" style="width:48px;height:auto;" />', label: 'Final Boss', color: '#ff0033' },
 };
 
 // ═══════════════════════════════════════
@@ -634,10 +651,11 @@ function validateWorldEnemies() {
 // ═══════════════════════════════════════
 
 const STAT_GROWTH = {
-  hp:  18,   // era 8  → subido para que el jugador aguante los jefes tardíos
-  atk:  8,   // era 3  → subido para que el daño crezca con significativamente
-  mgk:  3,
-  mp:   4,
+  hp: 18,   // era 8  → subido para que el jugador aguante los jefes tardíos
+  atk: 8,   // era 3  → subido para que el daño crezca con significativamente
+  mgk: 3,
+  mp: 4,
+  spd: 1,
 };
 
 // ═══════════════════════════════════════
@@ -656,23 +674,23 @@ function getScaledEnemy(enemy, nodeLevel = 0) {
     // Los jefes escalan por worldId, NO por nodeLevel.
     // Esto evita la inflación exponencial que hacía imposible ganar.
     const worldScale = 1 + (enemy.worldId || 0) * 0.12;
-    scaledHp  = Math.floor(enemy.baseHp  * worldScale);
+    scaledHp = Math.floor(enemy.baseHp * worldScale);
     scaledAtk = Math.floor(enemy.baseAtk * worldScale);
   } else {
     // Enemigos normales: escalan suavemente con la profundidad del nodo
-    const nodeScale    = 1 + nodeLevel * 0.10;
+    const nodeScale = 1 + nodeLevel * 0.10;
     const nodeAtkScale = 1 + nodeLevel * 0.07;
-    scaledHp  = Math.floor(enemy.baseHp  * nodeScale);
+    scaledHp = Math.floor(enemy.baseHp * nodeScale);
     scaledAtk = Math.floor(enemy.baseAtk * nodeAtkScale);
   }
 
   const scaled = {
     ...enemy,
-    hp:        scaledHp,
+    hp: scaledHp,
     currentHp: scaledHp,
-    atk:       scaledAtk,
+    atk: scaledAtk,
     rewards: {
-      xp:    Math.floor((enemy.rewards?.xp    || 20) * (1 + nodeLevel * 0.15)),
+      xp: Math.floor((enemy.rewards?.xp || 20) * (1 + nodeLevel * 0.15)),
       munny: Math.floor((enemy.rewards?.munny || 10) * (1 + nodeLevel * 0.15)),
     },
   };

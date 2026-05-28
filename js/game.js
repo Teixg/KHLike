@@ -27,6 +27,7 @@ let gs = {
   battleActive: false,
   currentEnemy: null,
   currentBattleInfo: null,
+  battleSpeed: 1,
 };
 
 // ── Screen management ──────────────────────────────────────
@@ -69,6 +70,7 @@ function renderChars() {
     const mpPct = Math.min(100, Math.round((c.mp / FIXED_MAX) * 100));
     const atkPct = Math.min(100, Math.round((c.atk / FIXED_MAX) * 100));
     const mgkPct = Math.min(100, Math.round((c.mgk / FIXED_MAX) * 100));
+    const spdPct = Math.min(100, Math.round((c.spd / FIXED_MAX) * 100));
 
     d.innerHTML = `
       <span class="char-sprite">${spriteHtml}</span>
@@ -94,6 +96,11 @@ function renderChars() {
         <div class="stat-label-left">MAGIC</div>
         <div class="stat-value">${c.mgk}</div>
         <div class="stat-bar stat-mgk"><div class="stat-fill" style="width:${mgkPct}%;"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label-left">SPD</div>
+        <div class="stat-value">${c.spd}</div>
+        <div class="stat-bar stat-spd"><div class="stat-fill" style="width:${spdPct}%;"></div></div>
       </div>
     `;
     g.appendChild(d);
@@ -127,6 +134,7 @@ function calculateFinalStats() {
     atk: baseChar.atk + Math.floor((level - 1) * STAT_GROWTH.atk),
     mgk: baseChar.mgk + Math.floor((level - 1) * STAT_GROWTH.mgk),
     mp: baseChar.mp + Math.floor((level - 1) * STAT_GROWTH.mp),
+    spd: baseChar.spd + Math.floor((level - 1) * STAT_GROWTH.spd),
   };
 
   if (gs.currentKeyblade) {
@@ -146,6 +154,7 @@ function calculateFinalStats() {
     finalStats.atk += c.bonusStats.atk || 0;
     finalStats.mgk += c.bonusStats.mgk || 0;
     finalStats.mp += c.bonusStats.mp || 0;
+    finalStats.spd += c.bonusStats.spd || 0;
   }
 
   return finalStats;
@@ -162,6 +171,7 @@ function updateCharStats() {
   c.atk = finalStats.atk;
   c.mgk = finalStats.mgk;
   c.mp = finalStats.mp;
+  c.spd = finalStats.spd;
   c.currentHp = Math.min(c.hp, Math.max(1, Math.floor(c.hp * hpRatio)));
   c.currentMp = Math.min(c.mp, c.currentMp);
 }
@@ -439,7 +449,7 @@ function showMoogleShop(onClose) {
           <div class="shop-item-icon">${item1.icon}</div>
           <div class="shop-item-name">${item1.name}</div>
           <div class="shop-item-stat">
-            ${item1.stat === 'atk' ? '⚔️' : item1.stat === 'mgk' ? '✨' : item1.stat === 'hp' ? '❤️' : item1.stat === 'mp' ? '💙' : '⚡'}
+            ${STAT_ICONS[item1.stat] || ''}
             +${item1.bonus}${item1.mgk_bonus ? ` / ✨+${item1.mgk_bonus}` : ''}
           </div>
         </div>
@@ -448,7 +458,7 @@ function showMoogleShop(onClose) {
           <div class="shop-item-icon">${item2.icon}</div>
           <div class="shop-item-name">${item2.name}</div>
           <div class="shop-item-stat">
-            ${item2.stat === 'atk' ? '⚔️' : item2.stat === 'mgk' ? '✨' : item2.stat === 'hp' ? '❤️' : item2.stat === 'mp' ? '💙' : '⚡'}
+            ${STAT_ICONS[item2.stat] || ''}
             +${item2.bonus}${item2.mgk_bonus ? ` / ✨+${item2.mgk_bonus}` : ''}
           </div>
         </div>
@@ -475,7 +485,7 @@ function selectMoogleItem(itemId, overlayId) {
     icon: '✨',
     title: 'Kupo!',
     body: `You obtained ${item.icon} ${item.name}!`,
-    reward: `${item.stat === 'atk' ? '⚔️' : item.stat === 'mgk' ? '✨' : item.stat === 'hp' ? '❤️' : item.stat === 'mp' ? '💙' : '⚡'} +${item.bonus}`,
+    reward: `${STAT_ICONS[item.stat] || ''} +${item.bonus}`,
     onClose: () => {
       renderMapSidePanels();
       if (window.currentMoogleShopClose) {
@@ -498,3 +508,4 @@ function skipMoogleShop(overlayId) {
 // ── Boot ───────────────────────────────────────────────────
 genStars();
 renderChars();
+updateSpeedButtonUI();
