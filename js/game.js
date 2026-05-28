@@ -49,6 +49,15 @@ function loadGame() {
     const parsed = JSON.parse(data);
     Object.assign(gs, parsed);
     
+    // Migration for renamed ring IDs in active saves
+    if (gs.inventory && gs.inventory.length > 0) {
+      gs.inventory = gs.inventory.map(id => {
+        if (id === 'anillo-experto-6') return 'anillo-experto';
+        if (id === 'anillo-experto-7') return 'anillo-maestro';
+        return id;
+      });
+    }
+
     // Migration for old saves (equippedItems tracking string IDs instead of indices)
     if (gs.equippedItems && gs.equippedItems.length > 0 && typeof gs.equippedItems[0] === 'string') {
       const newEquipped = [];
@@ -513,12 +522,14 @@ function showEventOverlay({ icon, title, body, reward, onClose, allowReject, onA
     buttons = `<button class="btn primary" id="ev-close-btn">Continue</button>`;
   }
 
+  const rewardHtml = reward ? `<div class="event-reward">${reward}</div>` : '';
+
   ov.innerHTML = `
     <div class="event-card">
       <span class="event-icon">${icon}</span>
       <div class="event-title">${title}</div>
       <div class="event-body">${body}</div>
-      <div class="event-reward">${reward}</div>
+      ${rewardHtml}
       ${buttons}
     </div>
   `;
@@ -612,25 +623,16 @@ function showMoogleShop(onClose) {
 function selectMoogleItem(itemId, overlayId) {
   addInventoryItem(itemId);
   incrementStat('moogleItemsBought', 1);
-  const item = getItemById(itemId);
 
   // Remover la tienda
   const overlay = document.getElementById(overlayId);
   if (overlay) overlay.remove();
 
-  showEventOverlay({
-    icon: '✨',
-    title: 'Kupo!',
-    body: `You obtained ${item.icon} ${item.name}!`,
-    reward: `${STAT_ICONS[item.stat] || ''} +${item.bonus}`,
-    onClose: () => {
-      renderMapSidePanels();
-      if (window.currentMoogleShopClose) {
-        window.currentMoogleShopClose();
-        window.currentMoogleShopClose = null;
-      }
-    },
-  });
+  renderMapSidePanels();
+  if (window.currentMoogleShopClose) {
+    window.currentMoogleShopClose();
+    window.currentMoogleShopClose = null;
+  }
 }
 
 function skipMoogleShop(overlayId) {
@@ -667,6 +669,15 @@ function loadProfile() {
       if (!profile.unlockedAchievements) profile.unlockedAchievements = [];
       if (!profile.unlockedItems) profile.unlockedItems = [];
       if (!profile.closedKeyholes) profile.closedKeyholes = [];
+      
+      // Migration for renamed ring IDs in persistent profile
+      if (profile.unlockedItems && profile.unlockedItems.length > 0) {
+        profile.unlockedItems = profile.unlockedItems.map(id => {
+          if (id === 'anillo-experto-6') return 'anillo-experto';
+          if (id === 'anillo-experto-7') return 'anillo-maestro';
+          return id;
+        });
+      }
       if (profile.soraWon === undefined) profile.soraWon = false;
       if (profile.rikuWon === undefined) profile.rikuWon = false;
       if (profile.totalKills === undefined) profile.totalKills = 0;

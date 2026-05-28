@@ -110,7 +110,7 @@ function startBattle(enemy, isBoss, isFinal) {
       — <b>${enemy.name}</b> appeared!
     </div>`;
 
-  gs.currentBattleInfo = { isFinal, enemy };
+  gs.currentBattleInfo = { isBoss, isFinal, enemy };
 
   const speedBtn = document.getElementById('btn-skip-battle');
   if (speedBtn) {
@@ -440,7 +440,7 @@ function endBattle(won) {
     gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + healAmount);
 
     rewardsText += `<div class="victory-other-rewards">`;
-    if (gs.currentEnemy.reward) {
+    if (gs.currentBattleInfo?.isBoss && gs.currentEnemy.reward) {
       rewardsText += `<div class="victory-reward-item"><img src="assets/extras/reward.png" class="victory-reward-icon" alt="Reward" /> Reward: ${gs.currentEnemy.reward}</div>`;
     }
     rewardsText += `<div class="victory-heal-msg"><img src="assets/extras/hpOrb.png" class="victory-heal-icon" alt="HP recovered" /> +${healAmount} HP recovered</div>`;
@@ -516,13 +516,7 @@ function afterBattle() {
         if (typeof recordGameVictory === 'function') {
           recordGameVictory(gs.char.id);
         }
-        showEventOverlay({
-          icon:  '👑',
-          title: 'You Have Prevailed!',
-          body:  'All worlds have been conquered. The Keyblade War is over.',
-          reward: '',
-          onClose: () => showScreen('s-title'),
-        });
+        showScreen('s-ending');
       }
       return;
     }

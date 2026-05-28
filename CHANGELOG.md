@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.8.1] - 2026-05-28
+
+### ✨ Features
+- **Battle Victory Rewards Separation**: Restored boss drop functionality by storing the `isBoss` flag in `gs.currentBattleInfo`, enabling the interactive claim/reject overlay for boss Keyblades and accessories upon victory.
+- **Accessory Names Translation**: Translated all 12 collectible accessory/item names (e.g., Elven Bandana, Protect Belt, Power Band, Aegis Chain, Cosmic Chain, Shock Charm, Expert's Ring, Full Bloom, Midnight Anklet, Orichalcum Ring, Star Charm, and Master's Ring) and their corresponding enemy drop references to English to align with the rest of the game's language setting.
+- **Streamlined Moogle Shop Choices**: Removed the redundant confirmation dialog ("You obtained...!") after selecting an item, returning the player directly to the map with their new accessory.
+- **Dedicated Ending Screen**: Integrated a dedicated ending viewport screen (`#s-ending`) displaying the classic *Chain of Memories* ending illustration (Sora & Riku side-by-side) with "The End" text and a return-to-title navigation button, replacing the generic victory modal when clearing the game.
+
+### 🐛 Bug Fixes
+- **World Enemy Sync**: Synced the `enemies` and `boss` arrays inside the master `WORLDS` template with the updated `ENEMY_TEMPLATES` database, resolving `Invalid enemy in startBattle: null` and `Boss not found` errors.
+- **Battle Victory Rewards Display**: Separated normal battle rewards from boss drops. Normal battles now only show the level up capsule and HP recovery (and no longer display fake, un-awarded items).
+- **Save Migration for Renamed Rings**: Integrated automatic migration mapping in `loadGame()` and `loadProfile()` inside `js/game.js` to convert the old ring IDs (`anillo-experto-6` $\rightarrow$ `anillo-experto` and `anillo-experto-7` $\rightarrow$ `anillo-maestro`) to their new values, preserving active saves and profile statistics.
+- **Enemy Sprite Centering**: Centered enemy sprite images relative to their health bars on the battle screen by removing the inline `align-self: flex-end` override from `#e-sprite`.
+- **Clean Event Overlays**: Prevented empty gold reward boxes from rendering on dialog overlays (like the Save Overwrite warning and Victory popups) by making the `.event-reward` container render conditionally only when reward text is present.
+
+---
+
 ## [v0.8.0] - 2026-05-28
 
 ### ✨ Features

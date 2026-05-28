@@ -15,7 +15,7 @@ const WORLDS = [
     levelRange: [8, 16],
     icon: '<img src="assets/worlds/wllogo.png" alt="Wonderland" style="width:45px;height:auto;" />',
     bg: 'rgba(10,30,40,.3)',
-    enemies: ['rednocturne', 'bluerhapsody', 'creeperplant'],
+    enemies: ['rednocturne', 'cardspades', 'cardhearts'],
     boss: 'trickmaster',
   },
   {
@@ -24,7 +24,7 @@ const WORLDS = [
     levelRange: [17, 26],
     icon: '<img src="assets/worlds/Deep-Jungle.webp" alt="Deep Jungle" style="width:45px;height:auto;" />',
     bg: 'rgba(10,40,10,.3)',
-    enemies: ['powerwild', 'bouncywild', 'airsoldier'],
+    enemies: ['powerwild', 'bouncywild', 'creeperplant'],
     boss: 'parasitecage',
   },
   {
@@ -33,8 +33,8 @@ const WORLDS = [
     levelRange: [27, 37],
     icon: '<img src="assets/worlds/Oclogo.png" alt="Olympus Coliseum" style="width:45px;height:auto;" />',
     bg: 'rgba(40,30,10,.3)',
-    enemies: ['barrelspider', 'pirate', 'largebody'],
-    boss: 'cerberus',
+    enemies: ['tornadostep', 'pirate', 'airsoldier'],
+    boss: 'hades',
   },
   {
     id: 4,
@@ -69,7 +69,7 @@ const WORLDS = [
     levelRange: [77, 90],
     icon: '<img src="assets/worlds/cologo.png" alt="Castel Oblivion" style="width:45px;height:auto;" />',
     bg: 'rgba(5,5,15,.6)',
-    enemies: ['invisible', 'angelstar', 'neoshadow'],
+    enemies: ['blackfungus', 'organizationXIII', 'neoshadow'],
     boss: 'marluxia',
   },
 ];
@@ -91,7 +91,7 @@ const CHARS = [
 
     hp: 130,
     mp: 80,
-    atk: 24,
+    atk: 294,
     mgk: 16,
     spd: 15,
   },
@@ -265,7 +265,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 420,
     baseAtk: 88,
     type: 'Heartless',
-    reward: 'Anillo de experto (+6)',
+    reward: "Expert's Ring (+6)",
     worldId: 3,
   },
   {
@@ -381,7 +381,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 865,
     baseAtk: 145,
     type: 'Heartless',
-    reward: 'Plenaflor',
+    reward: 'Full Bloom',
     worldId: 5,
   },
   {
@@ -406,7 +406,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 920,
     baseAtk: 183,
     type: 'Heartless',
-    reward: 'Banda de poder',
+    reward: 'Power Band',
     worldId: 6,
   },
   {
@@ -453,7 +453,7 @@ const ENEMY_TEMPLATES = [
     baseHp: 1200,
     baseAtk: 228,
     type: 'Heartless',
-    reward: 'Anillo oricalco',
+    reward: 'Orichalcum Ring',
     worldId: 7,
   },
   {
@@ -510,18 +510,18 @@ const STAT_ICONS = {
 // ═══════════════════════════════════════
 
 const ITEMS = [
-  { id: 'panuelo-duende', name: 'Pañuelo duende', icon: '<img src="assets/items/Elven-Bandana.webp" alt="Pañuelo duende" class="item-icon-img" />', stat: 'spd', bonus: 8 },
-  { id: 'cinto-protecto', name: 'Cinto protecto', icon: '<img src="assets/items/Protect-Belt.webp" alt="Cinto protecto" class="item-icon-img" />', stat: 'hp', bonus: 90 },
-  { id: 'banda-poder', name: 'Banda de poder', icon: '<img src="assets/items/Power-band.webp" alt="Banda de poder" class="item-icon-img" />', stat: 'hp', bonus: 120 },
-  { id: 'cadena-aegis', name: 'Cadena de aegis', icon: '<img src="assets/items/Aegis-Chain.webp" alt="Cadena de aegis" class="item-icon-img" />', stat: 'hp', bonus: 150 },
-  { id: 'cadena-cosmica', name: 'Cadena Cosmica', icon: '<img src="assets/items/Cosmic-chain.webp" alt="Cadena Cosmica" class="item-icon-img" />', stat: 'hp', bonus: 200 },
-  { id: 'dije-galvanico', name: 'Dije galvanico', icon: '<img src="assets/items/Shock-Charm.webp" alt="Dije galvanico" class="item-icon-img" />', stat: 'mgk', bonus: 12 },
-  { id: 'anillo-experto-6', name: 'Anillo de experto (+6)', icon: '<img src="assets/items/Expert-ring.webp" alt="Anillo de experto (+6)" class="item-icon-img" />', stat: 'atk', bonus: 12 },
-  { id: 'plenaflor', name: 'Plenaflor', icon: '<img src="assets/items/Full-Bloom.webp" alt="Plenaflor" class="item-icon-img" />', stat: 'atk', bonus: 18 },
-  { id: 'cadena-nocturna', name: 'Cadena nocturna', icon: '<img src="assets/items/Midnight-Anklet.webp" alt="Cadena nocturna" class="item-icon-img" />', stat: 'hp', bonus: 130 },
-  { id: 'anillo-oricalco', name: 'Anillo oricalco', icon: '<img src="assets/items/Orichalcum-Ring.webp" alt="Anillo oricalco" class="item-icon-img" />', stat: 'atk', bonus: 14 },
-  { id: 'talisman-estelar', name: 'Talisman estelar', icon: '<img src="assets/items/Star-Charm.webp" alt="Talisman estelar" class="item-icon-img" />', stat: 'atk', bonus: 22 },
-  { id: 'anillo-experto-7', name: 'Anillo de experto (+7)', icon: '<img src="assets/items/Master\'s-Ring.webp" alt="Anillo de experto (+7)" class="item-icon-img" />', stat: 'atk', bonus: 15 },
+  { id: 'panuelo-duende', name: 'Elven Bandana', icon: '<img src="assets/items/Elven-Bandana.webp" alt="Elven Bandana" class="item-icon-img" />', stat: 'spd', bonus: 8 },
+  { id: 'cinto-protecto', name: 'Protect Belt', icon: '<img src="assets/items/Protect-Belt.webp" alt="Protect Belt" class="item-icon-img" />', stat: 'hp', bonus: 90 },
+  { id: 'banda-poder', name: 'Power Band', icon: '<img src="assets/items/Power-band.webp" alt="Power Band" class="item-icon-img" />', stat: 'hp', bonus: 120 },
+  { id: 'cadena-aegis', name: 'Aegis Chain', icon: '<img src="assets/items/Aegis-Chain.webp" alt="Aegis Chain" class="item-icon-img" />', stat: 'hp', bonus: 150 },
+  { id: 'cadena-cosmica', name: 'Cosmic Chain', icon: '<img src="assets/items/Cosmic-chain.webp" alt="Cosmic Chain" class="item-icon-img" />', stat: 'hp', bonus: 200 },
+  { id: 'dije-galvanico', name: 'Shock Charm', icon: '<img src="assets/items/Shock-Charm.webp" alt="Shock Charm" class="item-icon-img" />', stat: 'mgk', bonus: 12 },
+  { id: 'anillo-experto', name: "Expert's Ring (+6)", icon: '<img src="assets/items/Expert-ring.webp" alt="Expert\'s Ring (+6)" class="item-icon-img" />', stat: 'atk', bonus: 12 },
+  { id: 'plenaflor', name: 'Full Bloom', icon: '<img src="assets/items/Full-Bloom.webp" alt="Full Bloom" class="item-icon-img" />', stat: 'atk', bonus: 18 },
+  { id: 'cadena-nocturna', name: 'Midnight Anklet', icon: '<img src="assets/items/Midnight-Anklet.webp" alt="Midnight Anklet" class="item-icon-img" />', stat: 'hp', bonus: 130 },
+  { id: 'anillo-oricalco', name: 'Orichalcum Ring', icon: '<img src="assets/items/Orichalcum-Ring.webp" alt="Orichalcum Ring" class="item-icon-img" />', stat: 'atk', bonus: 14 },
+  { id: 'talisman-estelar', name: 'Star Charm', icon: '<img src="assets/items/Star-Charm.webp" alt="Star Charm" class="item-icon-img" />', stat: 'atk', bonus: 22 },
+  { id: 'anillo-maestro', name: "Master's Ring (+7)", icon: '<img src="assets/items/Master\'s-Ring.webp" alt="Master\'s Ring (+7)" class="item-icon-img" />', stat: 'atk', bonus: 15 },
 ];
 
 // ═══════════════════════════════════════
