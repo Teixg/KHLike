@@ -30,9 +30,22 @@
         <div class="info-quote" style="margin-top:16px;margin-bottom:24px;">
           "Darkness cannot prevail where light endures in the heart."
         </div>
-        <button class="btn primary" onclick="showScreen('s-select')" style="font-size:13px;padding:12px 40px;">
-          New Journey
-        </button>
+        <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+          <button id="btn-continue-journey" class="btn dark-btn" onclick="loadGame()" style="font-size:13px;padding:12px 40px; display:none;">
+            Continue Journey
+          </button>
+          <button class="btn primary" onclick="startNewJourney()" style="font-size:13px;padding:12px 40px;">
+            New Journey
+          </button>
+          <div style="display:flex; gap:8px; margin-top:4px; justify-content:center;">
+            <button class="btn heart-btn" onclick="showAchievements()" style="font-size:11px;padding:8px 20px;margin:0;min-width:140px;">
+              🏆 Achievements
+            </button>
+            <button class="btn dark-btn" onclick="showTutorial()" style="font-size:11px;padding:8px 20px;margin:0;min-width:140px;">
+              ❓ How to Play
+            </button>
+          </div>
+        </div>
         <div style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);margin-top:20px;letter-spacing:3px;">
           v0.5 · May 2026
         </div>
@@ -45,6 +58,109 @@
           This is an unofficial non-profit fan project
           created out of admiration for the original work.
         </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+       ACHIEVEMENTS SCREEN
+  ══════════════════════════════════ -->
+    <div id="s-achievements" class="screen" style="padding:14px 12px;">
+      <div class="content" style="width:100%; max-width:600px;">
+        <div class="cinzel" style="font-size:24px; color:var(--kh-gold); letter-spacing:2px; margin-bottom:4px;">🏆 Achievements</div>
+        <div class="crown-deco" style="margin-bottom:12px;"></div>
+        
+        <!-- Completion Rate HUD -->
+        <div id="achievements-summary" style="font-family:'Khmenu',serif; font-size:13px; color:var(--kh-muted); margin-bottom:16px;">
+          Completed: <span id="ach-percent" style="color:var(--kh-gold2); font-weight:bold;">0%</span> (0/7)
+        </div>
+        
+        <!-- Achievements scrollable list -->
+        <div id="achievements-list" class="achievements-container" style="width:100%; max-height:420px; overflow-y:auto; scrollbar-width:thin; display:flex; flex-direction:column; gap:10px; padding-right:6px; margin-bottom:16px;">
+          <!-- Achievement cards injected by game.js -->
+        </div>
+
+        <button class="btn small dark-btn" onclick="returnFromAchievements()" style="margin-top:10px; align-self:center;">
+          ← Return
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+       TUTORIAL SCREEN
+  ══════════════════════════════════ -->
+    <div id="s-tutorial" class="screen" style="padding:14px 12px;">
+      <div class="content" style="width:100%; max-width:600px;">
+        <div class="cinzel" style="font-size:24px; color:var(--kh-gold); letter-spacing:2px; margin-bottom:4px;">❓ Game Guide</div>
+        <div class="crown-deco" style="margin-bottom:12px;"></div>
+        
+        <!-- Tutorial Tabs navigation -->
+        <div style="display:flex; gap:6px; margin-bottom:14px; width:100%; justify-content:center; flex-wrap:wrap;">
+          <button class="btn tiny primary tut-tab-btn" onclick="switchTutorialTab('tut-exploration', this)">Exploration</button>
+          <button class="btn tiny dark-btn tut-tab-btn" onclick="switchTutorialTab('tut-combat', this)">Combat</button>
+          <button class="btn tiny dark-btn tut-tab-btn" onclick="switchTutorialTab('tut-growth', this)">Growth</button>
+          <button class="btn tiny dark-btn tut-tab-btn" onclick="switchTutorialTab('tut-recycle', this)">Recycling</button>
+        </div>
+        
+        <!-- Scrollable content area -->
+        <div id="tutorial-content-box" style="width:100%; max-height:380px; overflow-y:auto; scrollbar-width:thin; display:flex; flex-direction:column; gap:12px; padding-right:6px; margin-bottom:16px; text-align:left; background:var(--kh-panel); border:1px solid var(--kh-border); border-radius:12px; padding:16px;">
+          
+          <!-- Tab: Exploration -->
+          <div id="tut-exploration" class="tutorial-tab-content">
+            <h3 class="cinzel" style="font-size:16px; color:var(--kh-gold2); margin-bottom:8px;">🗺️ Map Nodes</h3>
+            <p style="font-size:12px; line-height:1.5; color:var(--kh-text); margin-bottom:8px;">Explore the interconnected paths of the map to advance floor by floor until you reach the final boss of each world.</p>
+            <ul style="font-size:11px; line-height:1.6; color:var(--kh-nobody); padding-left:16px; list-style-type:square; display:flex; flex-direction:column; gap:6px;">
+              <li><b>Normal Battles 🗡️</b>: Grant a level up on victory and heal 15% of your max HP.</li>
+              <li><b>Keyblade Chests 📦</b>: Unlock stronger weapons or grant valuable accessories.</li>
+              <li><b>Save Points 💾</b>: Automatically save your journey and restore 40% HP and 50% MP.</li>
+              <li><b>Moogle Shops ⭐</b>: Choose one accessory for free out of two displayed cards.</li>
+              <li><b>Mysteries 📜</b>: Random narrative events containing rewards, penalties, or healing.</li>
+            </ul>
+          </div>
+          
+          <!-- Tab: Combat -->
+          <div id="tut-combat" class="tutorial-tab-content" style="display:none;">
+            <h3 class="cinzel" style="font-size:16px; color:var(--kh-gold2); margin-bottom:8px;">⚔️ Combat & Spells</h3>
+            <p style="font-size:12px; line-height:1.5; color:var(--kh-text); margin-bottom:8px;">Combat resolves automatically in turns where you manage your accumulated MP.</p>
+            <ul style="font-size:11px; line-height:1.6; color:var(--kh-nobody); padding-left:16px; list-style-type:square; display:flex; flex-direction:column; gap:6px;">
+              <li><b>MP Regeneration</b>: Recover <b>+5 MP</b> on your turn and another <b>+5 MP</b> when hit.</li>
+              <li><b>Cure Spell 💚</b>: Cast with a <b>30% chance</b> if HP is under 40%. Consumes <b>50 MP</b> and heals based on your Magic.</li>
+              <li><b>Offensive Magic ✨</b>: Cast with a <b>30% chance</b> if you have at least <b>15 MP</b>. Consumes 15 MP and deals magic damage.</li>
+              <li><b>Double Strike 🗡️🗡️</b>: Chance to strike twice in a row, scaling with your Speed.</li>
+              <li><b>Dodge Roll 💨</b>: Chance to completely evade incoming attacks, scaling with your Speed.</li>
+            </ul>
+          </div>
+          
+          <!-- Tab: Growth -->
+          <div id="tut-growth" class="tutorial-tab-content" style="display:none;">
+            <h3 class="cinzel" style="font-size:16px; color:var(--kh-gold2); margin-bottom:8px;">📈 Character Growth</h3>
+            <p style="font-size:12px; line-height:1.5; color:var(--kh-text); margin-bottom:8px;">Enhance your stats by leveling up after each victorious combat node:</p>
+            <ul style="font-size:11px; line-height:1.6; color:var(--kh-nobody); padding-left:16px; list-style-type:square; display:flex; flex-direction:column; gap:6px;">
+              <li><b>Max HP (+18)</b>: Increases your health pool to survive heavy hits.</li>
+              <li><b>Strength / ATK (+8)</b>: Boosts physical attack damage.</li>
+              <li><b>Magic / MGK (+3)</b>: Scales offensive spell damage and Cure healing power.</li>
+              <li><b>Max MP (+4)</b>: Increases maximum mana capacity.</li>
+              <li><b>Speed / SPD (+1)</b>: Increases dodge and double strike probabilities.</li>
+            </ul>
+          </div>
+          
+          <!-- Tab: Recycle -->
+          <div id="tut-recycle" class="tutorial-tab-content" style="display:none;">
+            <h3 class="cinzel" style="font-size:16px; color:var(--kh-gold2); margin-bottom:8px;">♻️ Inventory & Recycling</h3>
+            <p style="font-size:12px; line-height:1.5; color:var(--kh-text); margin-bottom:8px;">You can equip up to 2 accessories simultaneously. Duplicate accessories can be equipped together to stack their stats.</p>
+            <p style="font-size:11px; line-height:1.5; color:var(--kh-nobody); margin-bottom:8px;"><b>Item Recycling</b>: Hover over any accessory in your inventory and click the ♻️ icon to dismantle it for a permanent random stat bonus:</p>
+            <ul style="font-size:11px; line-height:1.6; color:var(--kh-nobody); padding-left:16px; list-style-type:square; display:flex; flex-direction:column; gap:4px;">
+              <li>❤️ <b>+15 Max HP</b></li>
+              <li>💙 <b>+5 Max MP</b></li>
+              <li>⚔️ <b>+1 Strength (ATK)</b></li>
+              <li>✨ <b>+1 Magic (MGK)</b></li>
+            </ul>
+          </div>
+          
+        </div>
+
+        <button class="btn small dark-btn" onclick="showScreen('s-title')" style="margin-top:10px; align-self:center;">
+          ← Return
+        </button>
       </div>
     </div>
 
@@ -76,11 +192,13 @@
             <span id="hud-world-icon">🌑</span>
             <span id="hud-world" style="margin-left:6px;">—</span>
           </div>
-
         </div>
         <div class="map-hud-right">
           <button id="btn-global-speed" class="btn tiny primary" onclick="toggleBattleSpeed()" style="margin-right: 12px; margin-top: 4px;">
             <img src="assets/extras/Donald-Duck.png" class="speed-btn-icon" alt="Donald" /> Fast Mode
+          </button>
+          <button class="hud-achievements-btn" onclick="showAchievementsFromMap()" title="Achievements" style="background:none; border:none; font-size:16px; cursor:pointer; padding:2px; margin-right: 12px; margin-top: 4px; vertical-align:middle; transition:transform 0.15s ease; outline:none;">
+            🏆
           </button>
           <div class="hud-stat">
             FLOOR<span id="hud-level">1</span>

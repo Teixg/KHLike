@@ -92,6 +92,11 @@ function startBattle(enemy, isBoss, isFinal) {
   const enemySpriteEl = document.getElementById('e-sprite');
   if (enemy.iconHeight) {
     enemySpriteEl.style.fontSize = enemy.iconHeight + 'px';
+    const imgEl = enemySpriteEl.querySelector('img');
+    if (imgEl) {
+      imgEl.style.height = enemy.iconHeight + 'px';
+      imgEl.style.width = 'auto';
+    }
   }
 
   updateBattleBars();
@@ -167,6 +172,7 @@ function retreatFromBattle() {
     skipBtn.style.display = 'none';
   }
   showScreen('s-map');
+  saveGame();
 }
 
 function playerAutoAttack() {
@@ -178,11 +184,11 @@ function playerAutoAttack() {
   c.currentMp = Math.min(c.mp, (c.currentMp || 0) + 5);
 
   // 2. Spell Casting Checks
-  // A. Cure Spell (when HP < 40% and MP >= 20)
-  if (c.currentHp < c.hp * 0.4 && c.currentMp >= 20) {
+  // A. Cure Spell (when HP < 40% and MP >= 50, with 30% activation chance)
+  if (c.currentHp < c.hp * 0.4 && c.currentMp >= 50 && Math.random() < 0.3) {
     const healAmount = Math.round(finalStats.mgk * 2.5);
     c.currentHp = Math.min(c.hp, c.currentHp + healAmount);
-    c.currentMp -= 20;
+    c.currentMp -= 50;
     addLog(`💚 <b>${c.name}</b> casts <b>Cure</b>! <span style="color:var(--kh-green); font-weight:bold;">+${healAmount} HP</span> recovered.`, 'log-heal');
     updateBattleBars();
     
@@ -379,6 +385,9 @@ function endBattle(won) {
 
   if (won) {
     gs.wins++;
+    if (typeof incrementStat === 'function') {
+      incrementStat('totalKills', 1);
+    }
 
     const oldStats = {
       hp: gs.char.hp, atk: gs.char.atk,
@@ -387,6 +396,9 @@ function endBattle(won) {
 
     gs.playerLevel++;
     updateCharStats();
+    if (typeof recordPlayerLevel === 'function') {
+      recordPlayerLevel(gs.playerLevel);
+    }
 
     const statGains = {
       hp:  gs.char.hp  - oldStats.hp,
@@ -461,6 +473,9 @@ function afterBattle() {
   if (gs.pendingVictory) {
     // ¿Era el jefe final del mundo?
     if (gs.currentBattleInfo?.isFinal) {
+      if (typeof recordKeyholeClosed === 'function') {
+        recordKeyholeClosed(gs.currentWorldId);
+      }
       const currentWorld = WORLDS[gs.currentWorldId];
       const nextWorldId  = gs.currentWorldId + 1;
 
@@ -470,6 +485,9 @@ function afterBattle() {
 
         // Ajustar nivel del jugador al rango del nuevo mundo
         gs.playerLevel = nextWorld.levelRange[0];
+        if (typeof recordPlayerLevel === 'function') {
+          recordPlayerLevel(gs.playerLevel);
+        }
         
         // Curación completa al cambiar de mundo
         gs.char.currentHp = gs.char.hp;
@@ -482,6 +500,7 @@ function afterBattle() {
         gs.currentBattleInfo = null;
 
         renderMapCanvas();
+        saveGame();
 
         showEventOverlay({
           icon:  nextWorld.icon || '🌍',
@@ -493,6 +512,10 @@ function afterBattle() {
 
       } else {
         // ¡Juego completado!
+        clearSave();
+        if (typeof recordGameVictory === 'function') {
+          recordGameVictory(gs.char.id);
+        }
         showEventOverlay({
           icon:  '👑',
           title: 'You Have Prevailed!',
@@ -512,9 +535,11 @@ function afterBattle() {
     gs.currentBattleInfo = null;
     renderMapCanvas();
     showScreen('s-map');
+    saveGame();
 
   } else {
     // Derrota → volver al título
+    clearSave();
     showScreen('s-title');
   }
 }
@@ -545,6 +570,9 @@ function handleBossReward(battleInfo) {
         allowReject: true,
         onAccept: () => {
           gs.currentKeyblade = rewardKeyblade;
+          if (typeof recordKeybladeUnlock === 'function') {
+            recordKeybladeUnlock(rewardKeyblade.id);
+          }
           afterBattle();
         },
         onReject: () => afterBattle(),

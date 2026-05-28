@@ -223,7 +223,11 @@ function renderMapSidePanels() {
     `;
   }
   if (right) {
-    const equipped = gs.equippedItems.map(itemId => getItemById(itemId));
+    const equipped = gs.equippedItems.map(itemIndex => {
+      const itemId = gs.inventory[itemIndex];
+      return { id: itemId, index: itemIndex, data: getItemById(itemId) };
+    }).filter(e => e.data);
+
     right.innerHTML = `
       <div class="panel-title"> Keyblade</div>
       <div class="panel-block">
@@ -237,14 +241,14 @@ function renderMapSidePanels() {
       <div class="panel-block">
         <div class="equipped-slots-row">
           ${[0, 1].map(slot => {
-      const item = equipped[slot];
-      return item ? `
+      const itemObj = equipped[slot];
+      return itemObj ? `
               <div class="equipped-slot-cell has-item" 
-                   onclick="toggleEquipItem('${item.id}'); hideItemTooltip();"
-                   onmouseenter="showItemTooltip(event, '${item.id}')"
+                   onclick="toggleEquipItem(${itemObj.index}); hideItemTooltip();"
+                   onmouseenter="showItemTooltip(event, '${itemObj.id}')"
                    onmousemove="moveItemTooltip(event)"
                    onmouseleave="hideItemTooltip()">
-                <span class="equipped-cell-icon">${item.icon}</span>
+                <span class="equipped-cell-icon">${itemObj.data.icon}</span>
               </div>
             ` : `
               <div class="equipped-slot-cell empty">
@@ -258,17 +262,22 @@ function renderMapSidePanels() {
       <div class="panel-block inventory-block">
         ${inventory.length > 0 ? `
           <div class="inventory-grid">
-            ${inventory.map(itemId => {
+            ${inventory.map((itemId, idx) => {
       const item = getItemById(itemId);
-      const isEquipped = gs.equippedItems.includes(itemId);
+      const isEquipped = gs.equippedItems.includes(idx);
       return `
                 <div class="inventory-grid-cell ${isEquipped ? 'equipped' : ''}" 
-                     onclick="toggleEquipItem('${itemId}'); showItemTooltip(event, '${itemId}');"
+                     onclick="toggleEquipItem(${idx}); showItemTooltip(event, '${itemId}');"
                      onmouseenter="showItemTooltip(event, '${itemId}')"
                      onmousemove="moveItemTooltip(event)"
                      onmouseleave="hideItemTooltip()">
                   <span class="inventory-cell-icon">${item.icon}</span>
                   ${isEquipped ? '<div class="equipped-indicator">✓</div>' : ''}
+                  <button class="inventory-cell-recycle-btn" 
+                          onclick="event.stopPropagation(); recycleItem(${idx}); hideItemTooltip();" 
+                          title="Recycle item for stats">
+                    ♻️
+                  </button>
                 </div>
               `;
     }).join('')}

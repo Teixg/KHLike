@@ -13,7 +13,7 @@ const WORLDS = [
     id: 1,
     name: 'Wonderland',
     levelRange: [8, 16],
-    icon: '🐱',
+    icon: '<img src="assets/worlds/wllogo.png" alt="Wonderland" style="width:45px;height:auto;" />',
     bg: 'rgba(10,30,40,.3)',
     enemies: ['rednocturne', 'bluerhapsody', 'creeperplant'],
     boss: 'trickmaster',
@@ -22,7 +22,7 @@ const WORLDS = [
     id: 2,
     name: 'Deep Jungle',
     levelRange: [17, 26],
-    icon: '🌿',
+    icon: '<img src="assets/worlds/Deep-Jungle.webp" alt="Deep Jungle" style="width:45px;height:auto;" />',
     bg: 'rgba(10,40,10,.3)',
     enemies: ['powerwild', 'bouncywild', 'airsoldier'],
     boss: 'parasitecage',
@@ -31,7 +31,7 @@ const WORLDS = [
     id: 3,
     name: 'Olympus Coliseum',
     levelRange: [27, 37],
-    icon: '⚡',
+    icon: '<img src="assets/worlds/Oclogo.png" alt="Olympus Coliseum" style="width:45px;height:auto;" />',
     bg: 'rgba(40,30,10,.3)',
     enemies: ['barrelspider', 'pirate', 'largebody'],
     boss: 'cerberus',
@@ -40,7 +40,7 @@ const WORLDS = [
     id: 4,
     name: 'Agrabah',
     levelRange: [38, 49],
-    icon: '🏜️',
+    icon: '<img src="assets/worlds/Aglogo.png" alt="Agrabah" style="width:45px;height:auto;" />',
     bg: 'rgba(40,25,5,.3)',
     enemies: ['bandit', 'fatbandit', 'wizard'],
     boss: 'geniejafar',
@@ -49,7 +49,7 @@ const WORLDS = [
     id: 5,
     name: 'Halloween Town',
     levelRange: [50, 62],
-    icon: '🎃',
+    icon: '<img src="assets/worlds/Htlogo.png" alt="Halloween Town" style="width:45px;height:auto;" />',
     bg: 'rgba(30,5,30,.3)',
     enemies: ['wightknight', 'searchghost', 'gargoyle'],
     boss: 'oogieboogie',
@@ -58,16 +58,16 @@ const WORLDS = [
     id: 6,
     name: 'Hollow Bastion',
     levelRange: [63, 76],
-    icon: '🏯',
+    icon: '<img src="assets/worlds/Hblogo.png" alt="Hollow Bastion" style="width:45px;height:auto;" />',
     bg: 'rgba(10,10,40,.3)',
     enemies: ['defender', 'wyvern', 'darkball'],
     boss: 'rikureplica',
   },
   {
     id: 7,
-    name: 'End of the World',
+    name: 'Castel Oblivion',
     levelRange: [77, 90],
-    icon: '🌑',
+    icon: '<img src="assets/worlds/cologo.png" alt="Castel Oblivion" style="width:45px;height:auto;" />',
     bg: 'rgba(5,5,15,.6)',
     enemies: ['invisible', 'angelstar', 'neoshadow'],
     boss: 'marluxia',
@@ -130,7 +130,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'shadow',
     name: 'Shadow',
-    icon: '<img src="assets/enemies/Shadow.png" alt="Shadow" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Shadow.png" alt="Shadow" style="width:45px;" />',
     iconHeight: 60,
     baseHp: 70,
     baseAtk: 16,
@@ -141,7 +141,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'soldier',
     name: 'Soldier',
-    icon: '<img src="assets/enemies/Soldier.png" alt="Soldier" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Soldier.png" alt="Soldier" style="width:45px;" />',
     iconHeight: 64,
     baseHp: 88,
     baseAtk: 21,
@@ -152,10 +152,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'guardarmor',
     name: 'Guard Armor',
-    icon: '<img src="assets/enemies/Guard-Armor.png" alt="Guard Armor" style="width:45px;height:auto;" />',
-    iconHeight: 96,
+    icon: '<img src="assets/enemies/Guard-Armor.png" alt="Guard Armor" style="width:45px;" />',
+    iconHeight: 156,
     baseHp: 650,
-    baseAtk: 6,
+    baseAtk: 14,
     type: 'Boss',
     reward: 'Wishing Star',
     isBoss: true,
@@ -166,7 +166,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'rednocturne',
     name: 'Red Nocturne',
-    icon: '<img src="assets/enemies/Red-Nocturne.png" alt="Red Nocturne" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Red-Nocturne.png" alt="Red Nocturne" style="width:45px;" />',
     iconHeight: 68,
     baseHp: 165,
     baseAtk: 36,
@@ -175,9 +175,9 @@ const ENEMY_TEMPLATES = [
     worldId: 1,
   },
   {
-    id: 'bluerhapsody',
-    name: 'Blue Rhapsody',
-    icon: '<img src="assets/enemies/Blue-Rhapsody.png" alt="Blue Rhapsody" style="width:45px;height:auto;" />',
+    id: 'cardspades',
+    name: 'Card of Spades',
+    icon: '<img src="assets/enemies/Card-of-Spades.png" alt="Card of Spades" style="width:45px;" />',
     iconHeight: 72,
     baseHp: 180,
     baseAtk: 38,
@@ -186,9 +186,9 @@ const ENEMY_TEMPLATES = [
     worldId: 1,
   },
   {
-    id: 'creeperplant',
-    name: 'Creeper Plant',
-    icon: '<img src="assets/enemies/Creeper-Plant.png" alt="Creeper Plant" style="width:45px;height:auto;" />',
+    id: 'cardhearts',
+    name: 'Card of Hearts',
+    icon: '<img src="assets/enemies/Card-of-Hearts.png" alt="Card of Hearts" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 200,
     baseAtk: 42,
@@ -199,10 +199,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'trickmaster',
     name: 'Trickmaster',
-    icon: '<img src="assets/enemies/Trickmaster.png" alt="Trickmaster" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Trickmaster.png" alt="Trickmaster" style="width:45px;" />',
     iconHeight: 100,
     baseHp: 1280,
-    baseAtk: 14,
+    baseAtk: 20,
     type: 'Boss',
     reward: 'Lady Luck',
     isBoss: true,
@@ -213,7 +213,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'powerwild',
     name: 'Powerwild',
-    icon: '<img src="assets/enemies/Powerwild.png" alt="Powerwild" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Powerwild.png" alt="Powerwild" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 290,
     baseAtk: 62,
@@ -224,7 +224,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'bouncywild',
     name: 'Bouncywild',
-    icon: '<img src="assets/enemies/Bouncywild.png" alt="Bouncywild" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Bouncywild.png" alt="Bouncywild" style="width:45px;" />',
     iconHeight: 78,
     baseHp: 328,
     baseAtk: 66,
@@ -233,9 +233,9 @@ const ENEMY_TEMPLATES = [
     worldId: 2,
   },
   {
-    id: 'airsoldier',
-    name: 'Air Soldier',
-    icon: '<img src="assets/enemies/Air-soldier.png" alt="Air Soldier" style="width:45px;height:auto;" />',
+    id: 'creeperplant',
+    name: 'Creeper Plant',
+    icon: '<img src="assets/enemies/Creeper-Plant.png" alt="Creeper Plant" style="width:45px;" />',
     iconHeight: 74,
     baseHp: 310,
     baseAtk: 64,
@@ -246,10 +246,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'parasitecage',
     name: 'Parasite Cage',
-    icon: '<img src="assets/enemies/Parasite-Cage.png" alt="Parasite Cage" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Parasite-Cage.png" alt="Parasite Cage" style="width:45px;" />',
     iconHeight: 104,
     baseHp: 2000,
-    baseAtk: 23,
+    baseAtk: 28,
     type: 'Boss',
     reward: 'Jungle King',
     isBoss: true,
@@ -258,9 +258,9 @@ const ENEMY_TEMPLATES = [
 
   // ── Olympus Coliseum (Mundo 3) ─────────────────────────
   {
-    id: 'barrelspider',
-    name: 'Barrel Spider',
-    icon: '<img src="assets/enemies/Barrel-Spider.png" alt="Barrel Spider" style="width:45px;height:auto;" />',
+    id: 'tornadostep',
+    name: 'Tornado step',
+    icon: '<img src="assets/enemies/Tornado-Step.png" alt="Tornado Step" style="width:45px;" />',
     iconHeight: 70,
     baseHp: 420,
     baseAtk: 88,
@@ -271,7 +271,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'pirate',
     name: 'Pirate',
-    icon: '<img src="assets/enemies/Pirate.png" alt="Pirate" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Pirate.png" alt="Pirate" style="width:45px;" />',
     iconHeight: 72,
     baseHp: 472,
     baseAtk: 93,
@@ -280,9 +280,9 @@ const ENEMY_TEMPLATES = [
     worldId: 3,
   },
   {
-    id: 'largebody',
-    name: 'Large Body',
-    icon: '<img src="assets/enemies/Large-body.png" alt="Large Body" style="width:45px;height:auto;" />',
+    id: 'airsoldier',
+    name: 'Air Soldier',
+    icon: '<img src="assets/enemies/Air-soldier.png" alt="Air Soldier" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 519,
     baseAtk: 85,
@@ -291,12 +291,12 @@ const ENEMY_TEMPLATES = [
     worldId: 3,
   },
   {
-    id: 'cerberus',
-    name: 'Cerberus',
-    icon: '🐕',
+    id: 'hades',
+    name: 'Hades',
+    icon: '<img src="assets/enemies/Hades.png" alt="Hades" style="width:45px;" />',
     iconHeight: 98,
     baseHp: 2810,
-    baseAtk: 33,
+    baseAtk: 36,
     type: 'Boss',
     reward: 'Olympia',
     isBoss: true,
@@ -307,7 +307,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'bandit',
     name: 'Bandit',
-    icon: '<img src="assets/enemies/Bandit.png" alt="Bandit" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Bandit.png" alt="Bandit" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 580,
     baseAtk: 118,
@@ -318,7 +318,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'fatbandit',
     name: 'Fat Bandit',
-    icon: '<img src="assets/enemies/Fat-Bandit.png" alt="Fat Bandit" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Fat-Bandit.png" alt="Fat Bandit" style="width:45px;" />',
     iconHeight: 78,
     baseHp: 695,
     baseAtk: 123,
@@ -329,7 +329,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'wizard',
     name: 'Wizard',
-    icon: '<img src="assets/enemies/Wizard.png" alt="Wizard" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Wizard.png" alt="Wizard" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 632,
     baseAtk: 128,
@@ -340,10 +340,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'geniejafar',
     name: 'Genie Jafar',
-    icon: '<img src="assets/enemies/Genie-Jafar.png" alt="Genie Jafar" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Genie-Jafar.png" alt="Genie Jafar" style="width:45px;" />',
     iconHeight: 102,
     baseHp: 3710,
-    baseAtk: 45,
+    baseAtk: 42,
     type: 'Boss',
     reward: 'Three Wishes',
     isBoss: true,
@@ -354,7 +354,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'wightknight',
     name: 'Wight Knight',
-    icon: '<img src="assets/enemies/Wight-Knight.png" alt="Wight Knight" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Wight-Knight.png" alt="Wight Knight" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 750,
     baseAtk: 150,
@@ -365,7 +365,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'searchghost',
     name: 'Search Ghost',
-    icon: '<img src="assets/enemies/Search-Ghost.png" alt="Search Ghost" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Search-Ghost.png" alt="Search Ghost" style="width:45px;" />',
     iconHeight: 72,
     baseHp: 808,
     baseAtk: 156,
@@ -376,7 +376,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'gargoyle',
     name: 'Gargoyle',
-    icon: '<img src="assets/enemies/Gargoyle.png" alt="Gargoyle" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Gargoyle.png" alt="Gargoyle" style="width:45px;" />',
     iconHeight: 80,
     baseHp: 865,
     baseAtk: 145,
@@ -387,10 +387,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'oogieboogie',
     name: 'Oogie Boogie',
-    icon: '<img src="assets/enemies/Darkside.png" alt="Oogie Boogie" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Oogie-boogie.png" alt="Oogie Boogie" style="width:45px;" />',
     iconHeight: 106,
     baseHp: 4700,
-    baseAtk: 57,
+    baseAtk: 50,
     type: 'Boss',
     reward: 'Pumpkinhead',
     isBoss: true,
@@ -401,7 +401,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'defender',
     name: 'Defender',
-    icon: '<img src="assets/enemies/Defender.png" alt="Defender" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Defender.png" alt="Defender" style="width:45px;" />',
     iconHeight: 74,
     baseHp: 920,
     baseAtk: 183,
@@ -412,7 +412,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'wyvern',
     name: 'Wyvern',
-    icon: '<img src="assets/enemies/Wyvern.png" alt="Wyvern" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Wyvern.png" alt="Wyvern" style="width:45px;" />',
     iconHeight: 84,
     baseHp: 1000,
     baseAtk: 192,
@@ -423,7 +423,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'darkball',
     name: 'Darkball',
-    icon: '<img src="assets/enemies/Dark-Ball.png" alt="Dark Ball" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Dark-Ball.png" alt="Dark Ball" style="width:45px;" />',
     iconHeight: 68,
     baseHp: 1071,
     baseAtk: 186,
@@ -434,10 +434,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'rikureplica',
     name: 'Riku Replica',
-    icon: '<img src="assets/enemies/Organization-XIII.png" alt="Riku Replica" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Riku-Replica.png" alt="Riku Replica" style="width:45px;" />',
     iconHeight: 100,
     baseHp: 5780,
-    baseAtk: 71,
+    baseAtk: 57,
     type: 'Boss',
     reward: 'Divine Rose',
     isBoss: true,
@@ -446,9 +446,9 @@ const ENEMY_TEMPLATES = [
 
   // ── End of the World (Mundo 7) ─────────────────────────
   {
-    id: 'invisible',
-    name: 'Invisible',
-    icon: '👁️',
+    id: 'blackfungus',
+    name: 'Black Fungus',
+    icon: '<img src="assets/enemies/Black-Fungus.png" alt="Black Fungus" style="width:45px;" />',
     iconHeight: 76,
     baseHp: 1200,
     baseAtk: 228,
@@ -457,9 +457,9 @@ const ENEMY_TEMPLATES = [
     worldId: 7,
   },
   {
-    id: 'angelstar',
-    name: 'Angel Star',
-    icon: '⭐',
+    id: 'organizationXIII',
+    name: 'Organization XIII',
+    icon: '<img src="assets/enemies/Organization-XIII.png" alt="Organization XIII" style="width:45px;" />',
     iconHeight: 72,
     baseHp: 1208,
     baseAtk: 231,
@@ -470,7 +470,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'neoshadow',
     name: 'Neo Shadow',
-    icon: '<img src="assets/enemies/Neoshadow.png" alt="Neo Shadow" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/enemies/Neoshadow.png" alt="Neo Shadow" style="width:45px;" />',
     iconHeight: 82,
     baseHp: 1294,
     baseAtk: 240,
@@ -481,10 +481,10 @@ const ENEMY_TEMPLATES = [
   {
     id: 'marluxia',
     name: 'Marluxia',
-    icon: '🌹',
+    icon: '<img src="assets/enemies/Specter.png" alt="Specter" style="width:45px;" />',
     iconHeight: 108,
     baseHp: 6950,
-    baseAtk: 86,
+    baseAtk: 63,
     type: 'Final Boss',
     reward: 'Oblivion',
     isBoss: true,
@@ -591,7 +591,11 @@ const MYSTERY_EVENTS = [
     body: '"Take this. It\'s a lucky charm." Kairi gives you a token of friendship.',
     effect: (gs) => {
       const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-      gs.inventory.push(item.id);
+      if (typeof addInventoryItem === 'function') {
+        addInventoryItem(item.id);
+      } else {
+        gs.inventory.push(item.id);
+      }
       return `Found ${item.name}`;
     }
   },
@@ -605,6 +609,118 @@ const MYSTERY_EVENTS = [
       return '+8 ATK permanently';
     }
   },
+];
+
+// ═══════════════════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════════════════
+
+const ACHIEVEMENTS = [
+  {
+    id: 'sora_victory',
+    name: 'Hero of Light',
+    desc: 'Complete the journey and save the worlds as Sora.',
+    icon: '<img src="assets/characters/Sora.png" class="achievement-icon-img" />',
+    maxProgress: 1
+  },
+  {
+    id: 'riku_victory',
+    name: 'Seeker of Darkness',
+    desc: 'Complete the journey and conquer the darkness as Riku.',
+    icon: '<img src="assets/characters/Riku.png" class="achievement-icon-img" />',
+    maxProgress: 1
+  },
+  {
+    id: 'kills_10',
+    name: 'Heartless Skirmisher',
+    desc: 'Defeat 10 Heartless across all journeys.',
+    icon: '<img src="assets/enemies/Red-Nocturne.png" class="achievement-icon-img" />',
+    maxProgress: 10
+  },
+  {
+    id: 'kills_50',
+    name: 'Heartless Slayer',
+    desc: 'Defeat 50 Heartless across all journeys.',
+    icon: '<img src="assets/enemies/Guard-Armor.png" class="achievement-icon-img" />',
+    maxProgress: 50
+  },
+  {
+    id: 'moogle_shop',
+    name: 'Moogle Customer',
+    desc: 'Acquire 5 items from the Moogle Shop.',
+    icon: '<img src="assets/npc/Moogle.png" class="achievement-icon-img" />',
+    maxProgress: 5
+  },
+  {
+    id: 'keyblades_5',
+    name: 'Keyblade Collector',
+    desc: 'Collect 5 different Keyblades across all runs.',
+    icon: '<img src="assets/keyblades/Kingdom-key.png" class="achievement-icon-img" style="width:28px;height:auto;" />',
+    maxProgress: 5
+  },
+  {
+    id: 'keyblades_15',
+    name: 'Keyblade Master',
+    desc: 'Collect 15 different Keyblades across all runs.',
+    icon: '<img src="assets/keyblades/Ultima-weapon.png" class="achievement-icon-img" style="width:28px;height:auto;" />',
+    maxProgress: 15
+  },
+  {
+    id: 'first_keyhole',
+    name: 'Keyhole Sealer',
+    desc: 'Seal a world\'s keyhole for the first time by defeating a world boss.',
+    icon: '<img src="assets/extras/key.gif" class="achievement-icon-img" style="width:28px;height:auto;" />',
+    maxProgress: 1
+  },
+  {
+    id: 'kills_100',
+    name: 'Heartless Champion',
+    desc: 'Defeat 100 Heartless across all journeys.',
+    icon: '<img src="assets/enemies/Neoshadow.png" class="achievement-icon-img" />',
+    maxProgress: 100
+  },
+  {
+    id: 'all_items',
+    name: 'Item Collector',
+    desc: 'Collect all 12 unique items/accessories across all runs.',
+    icon: '<img src="assets/items/Star-Charm.webp" class="achievement-icon-img" style="width:28px;height:auto;" />',
+    maxProgress: 12
+  },
+  {
+    id: 'level_30',
+    name: 'Seeker of Strength',
+    desc: 'Reach Level 30 in any run.',
+    icon: '<img src="assets/extras/Hp-up.png" class="achievement-icon-img" style="width:24px;height:auto;" />',
+    maxProgress: 30
+  },
+  {
+    id: 'level_50',
+    name: 'Limit Break',
+    desc: 'Reach Level 50 in any run.',
+    icon: '<img src="assets/extras/DmgUp.png" class="achievement-icon-img" style="width:24px;height:auto;" />',
+    maxProgress: 50
+  },
+  {
+    id: 'keyholes_4',
+    name: 'Keyhole Specialist',
+    desc: 'Seal 4 different world keyholes.',
+    icon: '🗝️',
+    maxProgress: 4
+  },
+  {
+    id: 'all_keyholes',
+    name: 'Saviour of Worlds',
+    desc: 'Seal all 8 unique world keyholes.',
+    icon: '👑',
+    maxProgress: 8
+  },
+  {
+    id: 'moogle_shop_15',
+    name: 'Moogle Benefactor',
+    desc: 'Acquire 15 items from the Moogle Shop.',
+    icon: '<img src="assets/npc/Moogle.png" class="achievement-icon-img" style="width:24px;height:auto;" />',
+    maxProgress: 15
+  }
 ];
 
 // ═══════════════════════════════════════

@@ -1,5 +1,43 @@
 # Changelog
 
+## [v0.8.0] - 2026-05-28
+
+### ✨ Features
+- **In-Game English Tutorial System**: Added an interactive "How to Play" tutorial guide modal (`#s-tutorial`) in `index.html` accessible from the Title Screen, fully translated to English with tabbed sections covering Exploration, Combat, Growth, and Recycling.
+- **Key-Shaped Achievement Toast Redesign**: Redesigned the achievement unlock popup into a custom key-shaped banner inspired directly by the *Kingdom Hearts* "OBTAINED" notification. Includes a circular head for the icon, a dark-gradient body, a white outline, and an italicized, underlined gold "OBTAINED" header.
+- **Visual World Representation**: Replaced world emojis with custom graphic logo assets (e.g. Wonderland logo, Deep Jungle logo, etc.) and updated Castle Oblivion's theme and naming.
+- **Enriched Enemy & Boss Roster**: Upgraded several enemy encounters across worlds:
+  - Wonderland: Added *Card of Spades* and *Card of Hearts* (replacing Rhapsody/Plant).
+  - Deep Jungle: Replaced Air Soldier with *Creeper Plant*.
+  - Olympus Coliseum: Replaced Barrel Spider and Large Body with *Tornado Step* and *Air Soldier*, and replaced Cerberus with the *Hades* boss fight.
+  - Halloween Town & Hollow Bastion: Updated Oogie Boogie and Riku Replica with dedicated, unique graphic sprite assets.
+  - Castle Oblivion: Added *Black Fungus* and *Organization XIII* (replacing Invisible/Angel Star), and upgraded Marluxia's sprite with the *Specter* graphic.
+
+### 🐛 Bug Fixes
+- **Enemy Sprite Scaling**: Fixed an issue where the battle screen ignored enemy `iconHeight` settings and rendered all enemy images at a default 45px width. The engine now queries the `<img>` sprite inside `#e-sprite` and dynamically sets its height to `iconHeight` (and width to `auto`) to override the inline defaults.
+- **Achievements Title**: Translated the achievements list header from Spanish ("Logros") to English ("Achievements") to preserve linguistic consistency.
+
+---
+
+## [v0.7.0] - 2026-05-28
+
+### ✨ Features
+- **Suspend & Resume Save System**: Added a complete run persistence system utilizing `localStorage` to allow players to safely close their browser and resume runs:
+  - **Auto-save**: Saves player stats, inventory, equipment, and map layouts automatically when starting a run, completing map nodes, or returning from combat.
+  - **Thematic Save Points**: Interacting with Save Points heals the player and explicitly triggers `saveGame()` with a custom header `"Save Point (Game Saved!)"`.
+  - **Permadeath Compliance**: Automatically wipes the save game from storage when the player dies (defeat) or completes the final world (victory).
+  - **Overwrite Warning Overlay**: Added a warning dialog when clicking "New Journey" while a save file exists to prevent accidental loss of progress.
+
+### 🎨 UI/UX Improvements
+- **Title Screen Continue Button**: Integrated a stacked "Continue Journey" button on the Title Screen that automatically displays only if a saved game is present in browser storage.
+
+### 🔧 Technical
+- Added `saveGame()`, `loadGame()`, and `clearSave()` helper functions to handle JSON serialization of the global state `gs`.
+- Implemented `updateTitleScreenContinueButton()` and `startNewJourney()` to manage title screen transitions and warning triggers.
+- Triggered `updateTitleScreenContinueButton()` on boot to check browser storage immediately.
+
+---
+
 ## [v0.6.0] - 2026-05-28
 
 ### ✨ Features

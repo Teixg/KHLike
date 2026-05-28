@@ -36,6 +36,78 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
+// ── Save system management ──────────────────────────────────
+function saveGame() {
+  localStorage.setItem('khlike_savegame', JSON.stringify(gs));
+  updateTitleScreenContinueButton();
+}
+
+function loadGame() {
+  const data = localStorage.getItem('khlike_savegame');
+  if (!data) return;
+  try {
+    const parsed = JSON.parse(data);
+    Object.assign(gs, parsed);
+    
+    // Migration for old saves (equippedItems tracking string IDs instead of indices)
+    if (gs.equippedItems && gs.equippedItems.length > 0 && typeof gs.equippedItems[0] === 'string') {
+      const newEquipped = [];
+      gs.equippedItems.forEach(itemId => {
+        const idx = gs.inventory.indexOf(itemId);
+        if (idx !== -1 && !newEquipped.includes(idx)) {
+          newEquipped.push(idx);
+        }
+      });
+      gs.equippedItems = newEquipped;
+    }
+
+    // Sync speed UI after loading
+    if (typeof updateSpeedButtonUI === 'function') {
+      updateSpeedButtonUI();
+    }
+    
+    renderMapCanvas();
+    showScreen('s-map');
+  } catch (e) {
+    console.error('Error loading save game:', e);
+    clearSave();
+  }
+}
+
+function clearSave() {
+  localStorage.removeItem('khlike_savegame');
+  updateTitleScreenContinueButton();
+}
+
+function updateTitleScreenContinueButton() {
+  const btn = document.getElementById('btn-continue-journey');
+  if (!btn) return;
+  if (localStorage.getItem('khlike_savegame')) {
+    btn.style.display = 'inline-flex';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function startNewJourney() {
+  if (localStorage.getItem('khlike_savegame')) {
+    showEventOverlay({
+      icon: '⚠️',
+      title: 'Overwrite Save',
+      body: 'Starting a new journey will erase your current saved game. Do you wish to proceed?',
+      reward: '',
+      allowReject: true,
+      onAccept: () => {
+        clearSave();
+        showScreen('s-select');
+      },
+      onReject: () => {}
+    });
+  } else {
+    showScreen('s-select');
+  }
+}
+
 // ── Stars background ───────────────────────────────────────
 function genStars() {
   const c = document.getElementById('stars');
@@ -141,7 +213,8 @@ function calculateFinalStats() {
     finalStats.atk += gs.currentKeyblade.atk - baseKeybladeAtk;
   }
 
-  gs.equippedItems.forEach(itemId => {
+  gs.equippedItems.forEach(itemIndex => {
+    const itemId = gs.inventory[itemIndex];
     const item = getItemById(itemId);
     if (!item) return;
     finalStats[item.stat] += item.bonus;
@@ -179,10 +252,12 @@ function updateCharStats() {
 function addInventoryItem(itemId) {
   gs.inventory.push(itemId);
   renderMapCanvas();
+  recordItemUnlock(itemId);
 }
 
-function toggleEquipItem(itemId) {
-  const equippedIndex = gs.equippedItems.indexOf(itemId);
+function toggleEquipItem(index) {
+  const idx = parseInt(index, 10);
+  const equippedIndex = gs.equippedItems.indexOf(idx);
   if (equippedIndex !== -1) {
     gs.equippedItems.splice(equippedIndex, 1);
     updateCharStats();
@@ -199,10 +274,63 @@ function toggleEquipItem(itemId) {
     });
     return;
   }
-  if (!gs.inventory.includes(itemId)) return;
-  gs.equippedItems.push(itemId);
+  if (idx < 0 || idx >= gs.inventory.length) return;
+  gs.equippedItems.push(idx);
   updateCharStats();
   renderMapCanvas();
+}
+
+function recycleItem(index) {
+  const idx = parseInt(index, 10);
+  if (idx < 0 || idx >= gs.inventory.length) return;
+  const itemId = gs.inventory[idx];
+  const item = getItemById(itemId);
+  if (!item) return;
+
+  // If item is equipped, unequip it first
+  const equippedIdx = gs.equippedItems.indexOf(idx);
+  if (equippedIdx !== -1) {
+    gs.equippedItems.splice(equippedIdx, 1);
+  }
+
+  // Remove from inventory
+  gs.inventory.splice(idx, 1);
+
+  // Since we removed an item from inventory, all equipped indices after this index need to be decremented by 1
+  gs.equippedItems = gs.equippedItems.map(equippedIndex => {
+    if (equippedIndex > idx) {
+      return equippedIndex - 1;
+    }
+    return equippedIndex;
+  });
+
+  // Randomly choose a stat bonus
+  const bonuses = [
+    { name: 'Max HP', stat: 'hp', amount: 15, icon: '❤️' },
+    { name: 'Strength', stat: 'atk', amount: 1, icon: '⚔️' },
+    { name: 'Magic', stat: 'mgk', amount: 1, icon: '✨' },
+    { name: 'Max MP', stat: 'mp', amount: 5, icon: '💙' }
+  ];
+  const choice = bonuses[Math.floor(Math.random() * bonuses.length)];
+
+  // Apply to character's bonusStats
+  if (!gs.char.bonusStats) {
+    gs.char.bonusStats = { hp: 0, atk: 0, mgk: 0, spd: 0, mp: 0 };
+  }
+  gs.char.bonusStats[choice.stat] = (gs.char.bonusStats[choice.stat] || 0) + choice.amount;
+
+  updateCharStats();
+  renderMapCanvas();
+  saveGame();
+
+  // Show visual confirmation overlay
+  showEventOverlay({
+    icon: '♻️',
+    title: 'Item Recycled',
+    body: `You dismantled the <b>${item.name}</b> for raw essence.`,
+    reward: `Gained +${choice.amount} ${choice.name} permanently! ${choice.icon}`,
+    onClose: () => {}
+  });
 }
 
 function unlockKeyblade(keybladeId) {
@@ -210,6 +338,7 @@ function unlockKeyblade(keybladeId) {
   if (!keyblade) return;
   gs.currentKeyblade = keyblade;
   renderMapCanvas();
+  recordKeybladeUnlock(keybladeId);
 }
 
 // ── Start run ──────────────────────────────────────────────
@@ -238,6 +367,10 @@ function startRun() {
 
   renderMapCanvas();
   showScreen('s-map');
+  saveGame();
+
+  recordKeybladeUnlock('kingdomkey');
+  recordPlayerLevel(gs.playerLevel);
 }
 
 // ── Map node handler ───────────────────────────────────────
@@ -272,9 +405,10 @@ function handleMapNode(nodeId) {
       const mpGain = Math.round(gs.char.mp * 0.5);
       gs.char.currentHp = Math.min(gs.char.hp, gs.char.currentHp + hpGain);
       gs.char.currentMp = Math.min(gs.char.mp, gs.char.currentMp + mpGain);
+      saveGame();
       showEventOverlay({
         icon: "<img src='assets/extras/save.png'></img>",
-        title: 'Save Point',
+        title: 'Save Point (Game Saved!)',
         body: 'The warm light of the save point washes over you. Your strength is restored.',
         reward: `+${hpGain} HP · +${mpGain} MP`,
         onClose: () => completeNode(nodeId),
@@ -300,6 +434,7 @@ function handleMapNode(nodeId) {
             allowReject: true,
             onAccept: () => {
               gs.currentKeyblade = choice;
+              recordKeybladeUnlock(choice.id);
               completeNode(nodeId);
             },
             onReject: () => completeNode(nodeId),
@@ -356,6 +491,7 @@ function completeNode(nodeId) {
   gs.currentLevel = gs.map.nodes[nodeId].level;
   renderMapCanvas();
   showScreen('s-map');
+  saveGame();
 }
 
 // ── Event overlay ──────────────────────────────────────────
@@ -475,6 +611,7 @@ function showMoogleShop(onClose) {
 
 function selectMoogleItem(itemId, overlayId) {
   addInventoryItem(itemId);
+  incrementStat('moogleItemsBought', 1);
   const item = getItemById(itemId);
 
   // Remover la tienda
@@ -505,7 +642,304 @@ function skipMoogleShop(overlayId) {
   }
 }
 
+// ═══════════════════════════════════════
+// PLAYER PROFILE & ACHIEVEMENT SYSTEM
+// ═══════════════════════════════════════
+
+let profile = {
+  soraWon: false,
+  rikuWon: false,
+  totalKills: 0,
+  unlockedKeyblades: ['kingdomkey'],
+  moogleItemsBought: 0,
+  unlockedAchievements: [],
+  unlockedItems: [],
+  closedKeyholes: [],
+  maxLevelReached: 1
+};
+
+function loadProfile() {
+  const data = localStorage.getItem('khlike_profile');
+  if (data) {
+    try {
+      profile = JSON.parse(data);
+      if (!profile.unlockedKeyblades) profile.unlockedKeyblades = [];
+      if (!profile.unlockedAchievements) profile.unlockedAchievements = [];
+      if (!profile.unlockedItems) profile.unlockedItems = [];
+      if (!profile.closedKeyholes) profile.closedKeyholes = [];
+      if (profile.soraWon === undefined) profile.soraWon = false;
+      if (profile.rikuWon === undefined) profile.rikuWon = false;
+      if (profile.totalKills === undefined) profile.totalKills = 0;
+      if (profile.moogleItemsBought === undefined) profile.moogleItemsBought = 0;
+      if (profile.maxLevelReached === undefined) profile.maxLevelReached = 1;
+    } catch (e) {
+      console.error('Error loading profile:', e);
+      resetProfile();
+    }
+  } else {
+    resetProfile();
+  }
+}
+
+function saveProfile() {
+  localStorage.setItem('khlike_profile', JSON.stringify(profile));
+}
+
+function resetProfile() {
+  profile = {
+    soraWon: false,
+    rikuWon: false,
+    totalKills: 0,
+    unlockedKeyblades: ['kingdomkey'],
+    moogleItemsBought: 0,
+    unlockedAchievements: [],
+    unlockedItems: [],
+    closedKeyholes: [],
+    maxLevelReached: 1
+  };
+  saveProfile();
+}
+
+function incrementStat(statName, amt) {
+  if (profile[statName] !== undefined) {
+    profile[statName] += amt;
+    saveProfile();
+    checkAchievements();
+  }
+}
+
+function recordKeybladeUnlock(keybladeId) {
+  if (!profile.unlockedKeyblades.includes(keybladeId)) {
+    profile.unlockedKeyblades.push(keybladeId);
+    saveProfile();
+    checkAchievements();
+  }
+}
+
+function recordItemUnlock(itemId) {
+  if (!profile.unlockedItems) profile.unlockedItems = [];
+  if (!profile.unlockedItems.includes(itemId)) {
+    profile.unlockedItems.push(itemId);
+    saveProfile();
+    checkAchievements();
+  }
+}
+
+function recordKeyholeClosed(worldId) {
+  if (!profile.closedKeyholes) profile.closedKeyholes = [];
+  const numericId = parseInt(worldId, 10);
+  if (!profile.closedKeyholes.includes(numericId)) {
+    profile.closedKeyholes.push(numericId);
+    saveProfile();
+    checkAchievements();
+  }
+}
+
+function recordPlayerLevel(level) {
+  if (!profile.maxLevelReached || level > profile.maxLevelReached) {
+    profile.maxLevelReached = level;
+    saveProfile();
+    checkAchievements();
+  }
+}
+
+function recordGameVictory(charId) {
+  if (charId === 'sora') {
+    profile.soraWon = true;
+  } else if (charId === 'riku') {
+    profile.rikuWon = true;
+  }
+  saveProfile();
+  checkAchievements();
+}
+
+function getAchievementProgress(id) {
+  switch (id) {
+    case 'sora_victory':
+      return profile.soraWon ? 1 : 0;
+    case 'riku_victory':
+      return profile.rikuWon ? 1 : 0;
+    case 'kills_10':
+    case 'kills_50':
+    case 'kills_100':
+      return profile.totalKills;
+    case 'moogle_shop':
+      return profile.moogleItemsBought;
+    case 'moogle_shop_15':
+      return profile.moogleItemsBought;
+    case 'keyblades_5':
+    case 'keyblades_15':
+      return profile.unlockedKeyblades.length;
+    case 'first_keyhole':
+      return (profile.closedKeyholes || []).length;
+    case 'keyholes_4':
+      return (profile.closedKeyholes || []).length;
+    case 'all_keyholes':
+      return (profile.closedKeyholes || []).length;
+    case 'all_items':
+      return (profile.unlockedItems || []).length;
+    case 'level_30':
+      return profile.maxLevelReached || 1;
+    case 'level_50':
+      return profile.maxLevelReached || 1;
+    default:
+      return 0;
+  }
+}
+
+function checkAchievements() {
+  let anyNewUnlocks = false;
+  ACHIEVEMENTS.forEach(ach => {
+    if (profile.unlockedAchievements.includes(ach.id)) {
+      return;
+    }
+
+    const progress = getAchievementProgress(ach.id);
+    if (progress >= ach.maxProgress) {
+      profile.unlockedAchievements.push(ach.id);
+      triggerAchievementUnlock(ach);
+      anyNewUnlocks = true;
+    }
+  });
+
+  if (anyNewUnlocks) {
+    saveProfile();
+  }
+}
+
+function triggerAchievementUnlock(ach) {
+  const toast = document.createElement('div');
+  toast.className = 'achievement-toast';
+  
+  toast.innerHTML = `
+    <svg class="toast-bg" viewBox="0 0 380 80">
+      <defs>
+        <linearGradient id="toastGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#121212" />
+          <stop offset="60%" stop-color="#181818" />
+          <stop offset="100%" stop-color="#242424" />
+        </linearGradient>
+      </defs>
+      <path d="M 58 10 L 350 10 L 375 40 L 350 70 L 58 70 A 35 35 0 1 1 58 10 Z" fill="url(#toastGrad)" stroke="#ffffff" stroke-width="2.5" />
+    </svg>
+    <div class="toast-icon-wrap">
+      ${ach.icon}
+    </div>
+    <div class="toast-text-wrap">
+      <div class="toast-obtained">OBTAINED</div>
+      <div class="toast-name">${ach.name}</div>
+      <div class="toast-desc">${ach.desc}</div>
+    </div>
+  `;
+  
+  const container = document.getElementById('game');
+  if (container) {
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('toast-fadeout');
+      toast.addEventListener('transitionend', () => {
+        toast.remove();
+      });
+      // Fallback removal
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 500);
+    }, 4500);
+  }
+}
+
+let achievementsReturnScreen = 's-title';
+
+function showAchievements() {
+  achievementsReturnScreen = 's-title';
+  renderAchievements();
+  showScreen('s-achievements');
+}
+
+function showAchievementsFromMap() {
+  achievementsReturnScreen = 's-map';
+  renderAchievements();
+  showScreen('s-achievements');
+}
+
+function returnFromAchievements() {
+  showScreen(achievementsReturnScreen);
+}
+
+function showTutorial() {
+  const firstTabBtn = document.querySelector('.tut-tab-btn');
+  if (firstTabBtn) {
+    switchTutorialTab('tut-exploration', firstTabBtn);
+  }
+  showScreen('s-tutorial');
+}
+
+function switchTutorialTab(tabId, btn) {
+  document.querySelectorAll('.tutorial-tab-content').forEach(el => el.style.display = 'none');
+  const target = document.getElementById(tabId);
+  if (target) target.style.display = 'block';
+  
+  document.querySelectorAll('.tut-tab-btn').forEach(b => {
+    b.classList.remove('primary');
+    b.classList.add('dark-btn');
+  });
+  btn.classList.remove('dark-btn');
+  btn.classList.add('primary');
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievements-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  let unlockedCount = 0;
+  ACHIEVEMENTS.forEach(ach => {
+    const isUnlocked = profile.unlockedAchievements.includes(ach.id);
+    if (isUnlocked) {
+      unlockedCount++;
+    }
+
+    const currentProgress = getAchievementProgress(ach.id);
+    const maxProgress = ach.maxProgress;
+    const progressPct = Math.min(100, Math.round((currentProgress / maxProgress) * 100));
+
+    const card = document.createElement('div');
+    card.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+
+    card.innerHTML = `
+      <div class="achievement-icon-wrap">
+        ${ach.icon}
+      </div>
+      <div class="achievement-info">
+        <h4 class="achievement-name">${ach.name}</h4>
+        <p class="achievement-desc">${ach.desc}</p>
+      </div>
+      <div class="achievement-progress-wrap">
+        <div class="achievement-progress-text">${currentProgress} / ${maxProgress}</div>
+        <div class="achievement-progress-bar">
+          <div class="achievement-progress-fill" style="width: ${progressPct}%;"></div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  const percentEl = document.getElementById('ach-percent');
+  const summaryEl = document.getElementById('achievements-summary');
+  if (percentEl) {
+    const pct = ACHIEVEMENTS.length > 0 ? Math.round((unlockedCount / ACHIEVEMENTS.length) * 100) : 0;
+    percentEl.textContent = `${pct}%`;
+  }
+  if (summaryEl) {
+    const pct = ACHIEVEMENTS.length > 0 ? Math.round((unlockedCount / ACHIEVEMENTS.length) * 100) : 0;
+    summaryEl.innerHTML = `Completed: <span id="ach-percent" style="color:var(--kh-gold2); font-weight:bold;">${pct}%</span> (${unlockedCount}/${ACHIEVEMENTS.length})`;
+  }
+}
+
 // ── Boot ───────────────────────────────────────────────────
+loadProfile();
 genStars();
 renderChars();
 updateSpeedButtonUI();
+updateTitleScreenContinueButton();
