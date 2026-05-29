@@ -67,7 +67,7 @@ const WORLDS = [
     id: 7,
     name: 'Castel Oblivion',
     levelRange: [77, 90],
-    icon: '<img src="assets/worlds/cologo.png" alt="Castel Oblivion" style="width:45px;height:auto;" />',
+    icon: '<img src="assets/worlds/Cologo.png" alt="Castel Oblivion" style="width:45px;height:auto;" />',
     bg: 'rgba(5,5,15,.6)',
     enemies: ['blackfungus', 'organizationXIII', 'neoshadow'],
     boss: 'marluxia',
@@ -730,13 +730,11 @@ const ACHIEVEMENTS = [
 const NODE_CONFIGS = {
   start: { icon: '<img src="assets/nodes/Start1.png" alt="Start" style="width:48px;height:auto;" />', label: 'Start', color: 'var(--kh-gold)' },
   battle: { icon: '<img src="assets/nodes/Battle1.png" alt="Battle" style="width:48px;height:auto;" />', label: 'Battle', color: 'var(--kh-gold)' },
-  elite: { icon: '💀', label: 'Elite Battle', color: '#ff4444' },
   boss: { icon: '<img src="assets/nodes/Boss1.png" alt="Boss" style="width:48px;height:auto;" />', label: 'Boss', color: 'var(--kh-heart)' },
   save: { icon: '<img src="assets/nodes/Save1.png" alt="Save" style="width:48px;height:auto;" />', label: 'Save Point', color: 'var(--kh-green)' },
   chest: { icon: '<img src="assets/nodes/Chest1.png" alt="Chest" style="width:48px;height:auto;" />', label: 'Keyblade Chest', color: 'var(--kh-blue)' },
   mystery: { icon: '<img src="assets/nodes/Secret1.png" alt="Mystery" style="width:48px;height:auto;" />', label: 'Mystery', color: 'var(--kh-dark)' },
   moogle: { icon: '<img src="assets/nodes/Mogushop1.png" alt="Moogle" style="width:48px;height:auto;" />', label: 'Moogle Shop', color: 'var(--kh-ice)' },
-  organization: { icon: '🌹', label: 'Organization XIII', color: '#aa00ff' },
   end: { icon: '<img src="assets/nodes/Boss1.png" alt="Final Boss" style="width:48px;height:auto;" />', label: 'Final Boss', color: '#ff0033' },
 };
 

@@ -48,7 +48,7 @@ function loadGame() {
   try {
     const parsed = JSON.parse(data);
     Object.assign(gs, parsed);
-    
+
     // Migration for renamed ring IDs in active saves
     if (gs.inventory && gs.inventory.length > 0) {
       gs.inventory = gs.inventory.map(id => {
@@ -74,7 +74,7 @@ function loadGame() {
     if (typeof updateSpeedButtonUI === 'function') {
       updateSpeedButtonUI();
     }
-    
+
     renderMapCanvas();
     showScreen('s-map');
   } catch (e) {
@@ -110,7 +110,7 @@ function startNewJourney() {
         clearSave();
         showScreen('s-select');
       },
-      onReject: () => {}
+      onReject: () => { }
     });
   } else {
     showScreen('s-select');
@@ -338,7 +338,7 @@ function recycleItem(index) {
     title: 'Item Recycled',
     body: `You dismantled the <b>${item.name}</b> for raw essence.`,
     reward: `Gained +${choice.amount} ${choice.name} permanently! ${choice.icon}`,
-    onClose: () => {}
+    onClose: () => { }
   });
 }
 
@@ -429,8 +429,8 @@ function handleMapNode(nodeId) {
       const rewardIsKeyblade = Math.random() < 0.45;
       if (rewardIsKeyblade) {
         const currentWorld = gs.currentWorldId;
-        const possible = KEYBLADES.filter(kb => 
-          kb.atk > gs.currentKeyblade.atk && 
+        const possible = KEYBLADES.filter(kb =>
+          kb.atk > gs.currentKeyblade.atk &&
           (kb.world === undefined || kb.world <= currentWorld)
         );
         if (possible.length > 0) {
@@ -671,7 +671,7 @@ function loadProfile() {
       if (!profile.unlockedItems) profile.unlockedItems = [];
       if (!profile.closedKeyholes) profile.closedKeyholes = [];
       if (!profile.defeatedEnemies) profile.defeatedEnemies = {};
-      
+
       // Migration for renamed ring IDs in persistent profile
       if (profile.unlockedItems && profile.unlockedItems.length > 0) {
         profile.unlockedItems = profile.unlockedItems.map(id => {
@@ -831,7 +831,7 @@ function checkAchievements() {
 function triggerAchievementUnlock(ach) {
   const toast = document.createElement('div');
   toast.className = 'achievement-toast';
-  
+
   toast.innerHTML = `
     <svg class="toast-bg" viewBox="0 0 380 80">
       <defs>
@@ -852,11 +852,11 @@ function triggerAchievementUnlock(ach) {
       <div class="toast-desc">${ach.desc}</div>
     </div>
   `;
-  
+
   const container = document.getElementById('game');
   if (container) {
     container.appendChild(toast);
-    
+
     setTimeout(() => {
       toast.classList.add('toast-fadeout');
       toast.addEventListener('transitionend', () => {
@@ -900,7 +900,7 @@ function switchTutorialTab(tabId, btn) {
   document.querySelectorAll('.tutorial-tab-content').forEach(el => el.style.display = 'none');
   const target = document.getElementById(tabId);
   if (target) target.style.display = 'block';
-  
+
   document.querySelectorAll('.tut-tab-btn').forEach(b => {
     b.classList.remove('primary');
     b.classList.add('dark-btn');
@@ -1054,7 +1054,7 @@ function returnFromJournal() {
 function switchJournalTab(tabId, btn) {
   activeJournalTab = tabId;
   selectedJournalIndex = 0;
-  
+
   // Clear search field when switching tabs
   const searchInput = document.getElementById('journal-search');
   if (searchInput) searchInput.value = '';
@@ -1107,29 +1107,29 @@ function renderJournalList() {
   if (activeJournalTab === 'chronicles') {
     WORLDS.forEach(world => {
       // Unlocked if visited (index <= currentWorldId) OR if we closed its keyhole in a past run
-      const isUnlocked = (gs.char && world.id <= gs.currentWorldId) || 
-                         (profile.closedKeyholes && profile.closedKeyholes.includes(world.id));
-      
+      const isUnlocked = (gs.char && world.id <= gs.currentWorldId) ||
+        (profile.closedKeyholes && profile.closedKeyholes.includes(world.id));
+
       const item = document.createElement('div');
       item.className = `journal-list-item ${isUnlocked ? 'unlocked' : 'locked'} ${selectedJournalIndex === world.id ? 'active' : ''}`;
-      
+
       let isSealed = profile.closedKeyholes && profile.closedKeyholes.includes(world.id);
-      
+
       item.innerHTML = `
         <span class="journal-item-name">${isUnlocked ? world.name : `World ${world.id + 1} (locked)`}</span>
         ${isSealed ? `<span class="journal-item-badge"><img src="assets/extras/MickeyChek.png" alt="Sealed" style="width:14px;height:auto;vertical-align:middle;margin-left:4px;" /></span>` : ''}
       `;
-      
+
       item.onclick = () => {
         selectedJournalIndex = world.id;
         document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
         item.classList.add('active');
         renderJournalDetail(world.id);
       };
-      
+
       listEl.appendChild(item);
     });
-    
+
     renderJournalDetail(selectedJournalIndex);
 
   } else if (activeJournalTab === 'enemies') {
@@ -1147,22 +1147,22 @@ function renderJournalList() {
 
     enemies.forEach((enemy, idx) => {
       const isDefeated = profile.defeatedEnemies && profile.defeatedEnemies[enemy.id] > 0;
-      
+
       const item = document.createElement('div');
       item.className = `journal-list-item ${isDefeated ? 'unlocked' : 'locked'} ${selectedJournalIndex === idx ? 'active' : ''}`;
-      
+
       item.innerHTML = `
         <div class="journal-item-thumb ${isDefeated ? '' : 'silhouetted'}">${enemy.icon}</div>
-        <span class="journal-item-name">${isDefeated ? enemy.name : '???' }</span>
+        <span class="journal-item-name">${isDefeated ? enemy.name : '???'}</span>
       `;
-      
+
       item.onclick = () => {
         selectedJournalIndex = idx;
         document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
         item.classList.add('active');
         renderJournalDetail(enemy);
       };
-      
+
       listEl.appendChild(item);
     });
 
@@ -1183,22 +1183,22 @@ function renderJournalList() {
 
     keyblades.forEach((kb, idx) => {
       const isUnlocked = profile.unlockedKeyblades && profile.unlockedKeyblades.includes(kb.id);
-      
+
       const item = document.createElement('div');
       item.className = `journal-list-item ${isUnlocked ? 'unlocked' : 'locked'} ${selectedJournalIndex === idx ? 'active' : ''}`;
-      
+
       item.innerHTML = `
         <div class="journal-item-thumb ${isUnlocked ? '' : 'silhouetted'}">${kb.icon}</div>
-        <span class="journal-item-name">${isUnlocked ? kb.name : '???' }</span>
+        <span class="journal-item-name">${isUnlocked ? kb.name : '???'}</span>
       `;
-      
+
       item.onclick = () => {
         selectedJournalIndex = idx;
         document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
         item.classList.add('active');
         renderJournalDetail(kb);
       };
-      
+
       listEl.appendChild(item);
     });
 
@@ -1219,22 +1219,22 @@ function renderJournalList() {
 
     items.forEach((item, idx) => {
       const isUnlocked = profile.unlockedItems && profile.unlockedItems.includes(item.id);
-      
+
       const itemEl = document.createElement('div');
       itemEl.className = `journal-list-item ${isUnlocked ? 'unlocked' : 'locked'} ${selectedJournalIndex === idx ? 'active' : ''}`;
-      
+
       itemEl.innerHTML = `
         <div class="journal-item-thumb ${isUnlocked ? '' : 'silhouetted'}">${item.icon}</div>
-        <span class="journal-item-name">${isUnlocked ? item.name : '???' }</span>
+        <span class="journal-item-name">${isUnlocked ? item.name : '???'}</span>
       `;
-      
+
       itemEl.onclick = () => {
         selectedJournalIndex = idx;
         document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
         itemEl.classList.add('active');
         renderJournalDetail(item);
       };
-      
+
       listEl.appendChild(itemEl);
     });
 
@@ -1259,8 +1259,8 @@ function renderJournalDetail(selectedItem) {
   if (activeJournalTab === 'chronicles') {
     const worldId = selectedItem;
     const world = WORLDS[worldId];
-    const isUnlocked = (gs.char && world.id <= gs.currentWorldId) || 
-                       (profile.closedKeyholes && profile.closedKeyholes.includes(world.id));
+    const isUnlocked = (gs.char && world.id <= gs.currentWorldId) ||
+      (profile.closedKeyholes && profile.closedKeyholes.includes(world.id));
 
     if (!isUnlocked) {
       detailEl.innerHTML = `
@@ -1593,7 +1593,7 @@ function renderJournalCompletionStamps() {
 function updateTabStamp(tabId, isComplete) {
   const btn = document.getElementById(tabId);
   if (!btn) return;
-  
+
   // Remove existing stamp icon if any
   const oldStamp = btn.querySelector('.tab-complete-stamp');
   if (oldStamp) oldStamp.remove();

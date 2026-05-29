@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/map.css">
   <link rel="stylesheet" href="css/battle.css">
   <link rel="icon" type="image/png" href="assets/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -50,6 +51,10 @@
             <button class="btn dark-btn" onclick="showTutorial()"
               style="font-size:11px;padding:8px 12px;margin:0;min-width:110px;">
               ❓ How to Play
+            </button>
+            <button id="btn-cloud-sync" class="btn dark-btn" onclick="showCloudAuthModal()"
+              style="font-size:11px;padding:8px 12px;margin:0;min-width:110px;">
+              ☁️ Cloud Save
             </button>
           </div>
         </div>
@@ -438,6 +443,7 @@
   <script src="js/mapgen.js"></script>
   <script src="js/maprender.js"></script>
   <script src="js/battle.js"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/game.js"></script>
 
 </body>
