@@ -166,7 +166,7 @@ const ENEMY_TEMPLATES = [
   {
     id: 'rednocturne',
     name: 'Red Nocturne',
-    icon: '<img src="assets/enemies/Red-Nocturne.png" alt="Red Nocturne" style="width:45px;" />',
+    icon: '<img src="assets/enemies/Red-nocturne.png" alt="Red Nocturne" style="width:45px;" />',
     iconHeight: 68,
     baseHp: 165,
     baseAtk: 36,
@@ -634,7 +634,7 @@ const ACHIEVEMENTS = [
     id: 'kills_10',
     name: 'Heartless Skirmisher',
     desc: 'Defeat 10 Heartless across all journeys.',
-    icon: '<img src="assets/enemies/Red-Nocturne.png" class="achievement-icon-img" />',
+    icon: '<img src="assets/enemies/Red-nocturne.png" class="achievement-icon-img" />',
     maxProgress: 10
   },
   {
