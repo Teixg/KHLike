@@ -1040,3 +1040,553 @@ body {
 .tutorial-tab-content {
   animation: fadeIn 0.3s ease;
 }
+
+/* ═══════════════════════════════════════
+   JIMINY'S JOURNAL STYLES
+   ═══════════════════════════════════════ */
+
+.journal-book {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 480px;
+  max-height: 520px;
+  border-radius: 16px;
+  overflow: visible;
+  margin: 10px 0;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.journal-page {
+  flex: 1;
+  padding: 22px 24px;
+  background: radial-gradient(circle at center, #fbf7eb 0%, #ecdcb9 100%);
+  border: 3px solid #bba36d;
+  color: #1a1a24;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(90, 75, 44, 0.15);
+}
+
+.journal-left-page {
+  border-radius: 14px 0 0 14px;
+  border-right: none;
+}
+
+.journal-right-page {
+  border-radius: 0 14px 14px 0;
+  border-left: none;
+  position: relative;
+  z-index: 6; /* Page renders in front of inactive tabs */
+}
+
+.journal-spine {
+  width: 16px;
+  background: linear-gradient(to right, #ecdcb9 0%, #a2916b 40%, #7c683b 50%, #a2916b 60%, #ecdcb9 100%);
+  border-top: 3px solid #bba36d;
+  border-bottom: 3px solid #bba36d;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+.journal-tabs {
+  position: absolute;
+  left: calc(100% - 8px); /* Positioned to overlap by 8px on the right page */
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align tabs to the left boundary of this container */
+  gap: 6px;
+  /* z-index is omitted to avoid creating a stacking context, allowing individual child z-indices to compare with siblings of the parent */
+}
+
+.journal-tab {
+  position: relative;
+  z-index: 4; /* Rendered behind the page */
+  border: 2px solid #bba36d;
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  background: var(--kh-panel);
+  color: var(--kh-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  outline: none;
+  padding: 8px 14px;
+  white-space: nowrap;
+  min-height: 32px;
+}
+
+.tab-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px; /* Slightly larger for better readability */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: bold;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.journal-tab:hover {
+  background: var(--kh-border);
+  transform: translateX(4px); /* Slides out slightly but remains connected (overlap is still 4px) */
+  z-index: 5; /* Keeps hover state above other inactive tabs */
+}
+
+.journal-tab.active {
+  background: #ecdcb9;
+  color: #1a1a24;
+  border-color: #bba36d;
+  border-left: none !important;
+  transform: translateX(-4px); /* Pushes tab inwards (overlap is 12px) to merge with parchment background */
+  box-shadow: -2px 2px 5px rgba(0,0,0,0.15);
+  font-weight: bold;
+  z-index: 8; /* Renders in front of page to cover page gold border */
+}
+
+.journal-tab.active:hover {
+  transform: translateX(-4px);
+  background: #ecdcb9;
+}
+
+.journal-tab-title {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #7c683b;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 2px solid #7c683b;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.journal-list-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #bba36d rgba(0,0,0,0.05);
+}
+
+.journal-list-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(90, 75, 44, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+}
+
+.journal-list-item:hover {
+  background: rgba(90, 75, 44, 0.1);
+  border-color: rgba(124, 104, 59, 0.3);
+}
+
+.journal-list-item.active {
+  background: rgba(124, 104, 59, 0.18);
+  border-color: #7c683b;
+  font-weight: bold;
+}
+
+.journal-item-thumb {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.journal-item-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.journal-item-thumb.silhouetted img, 
+.journal-locked-icon.silhouetted img, 
+.journal-ach-icon.silhouetted img {
+  filter: brightness(0) invert(0.08) !important;
+  opacity: 0.8;
+}
+
+.journal-detail-container {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #bba36d rgba(0,0,0,0.05);
+}
+
+.scrollable-content {
+  padding-right: 6px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.journal-detail-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5d5a69;
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+  text-align: center;
+}
+
+.journal-locked-detail {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  color: #5d5a69;
+}
+
+.journal-locked-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  color: #7c683b;
+}
+
+.journal-muted-tip {
+  font-size: 11px;
+  font-style: italic;
+  margin-top: 10px;
+  color: #7c7a88;
+}
+
+.journal-section-header {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed rgba(124, 104, 59, 0.4);
+  padding-bottom: 2px;
+  color: #7c683b;
+}
+
+.journal-body-text {
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #2c2c2c;
+  margin-bottom: 8px;
+}
+
+.world-detail-header, 
+.enemy-detail-header, 
+.keyblade-detail-header, 
+.item-detail-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 2px solid #7c683b;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.world-detail-logo, 
+.enemy-detail-sprite, 
+.keyblade-detail-icon, 
+.item-detail-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.world-detail-logo img, 
+.enemy-detail-sprite img, 
+.keyblade-detail-icon img, 
+.item-detail-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.world-detail-title, 
+.enemy-detail-title, 
+.keyblade-detail-title, 
+.item-detail-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1a1a24;
+}
+
+.world-detail-subtitle, 
+.enemy-detail-type, 
+.keyblade-detail-origin, 
+.item-detail-stat-wrap {
+  font-size: 12px;
+  color: #5d5a69;
+}
+
+.world-detail-seal-status {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  margin: 6px 0;
+}
+
+.world-detail-seal-status.sealed {
+  background: rgba(76, 175, 125, 0.15);
+  color: #2e694b;
+  border: 1px solid rgba(76, 175, 125, 0.3);
+}
+
+.world-detail-seal-status.unsealed {
+  background: rgba(90, 75, 44, 0.08);
+  color: #7c683b;
+  border: 1px dashed rgba(124, 104, 59, 0.4);
+}
+
+.world-boss-name {
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  color: #1a1a24;
+  margin-bottom: 2px;
+}
+
+.enemy-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.enemy-stat-card {
+  background: rgba(90, 75, 44, 0.05);
+  border: 1px solid rgba(124, 104, 59, 0.2);
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Crimson Text', serif;
+}
+
+.enemy-stat-card .stat-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #5d5a69;
+}
+
+.enemy-stat-card .stat-val {
+  font-size: 14px;
+  font-weight: bold;
+  color: #1a1a24;
+}
+
+.keyblade-stats-box {
+  background: rgba(90, 75, 44, 0.05);
+  border: 1px solid rgba(124, 104, 59, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 6px 0;
+}
+
+.keyblade-stat-line {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  color: #2c2c2c;
+}
+
+.journal-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #5d5a69;
+  margin-bottom: 2px;
+}
+
+.journal-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(90, 75, 44, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.journal-fill {
+  height: 100%;
+  background: #7c683b;
+  border-radius: 3px;
+}
+
+.journal-ach-card {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(90, 75, 44, 0.05);
+  border: 1px solid rgba(124, 104, 59, 0.15);
+  margin-bottom: 6px;
+}
+
+.journal-ach-card.unlocked {
+  border-color: rgba(201, 168, 76, 0.5);
+  background: rgba(201, 168, 76, 0.06);
+}
+
+.journal-ach-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.journal-ach-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.journal-ach-info {
+  flex: 1;
+  font-family: 'Crimson Text', serif;
+}
+
+.journal-ach-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #1a1a24;
+}
+
+.journal-ach-desc {
+  font-size: 11px;
+  color: #5d5a69;
+  line-height: 1.2;
+}
+
+.journal-ach-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(90, 75, 44, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.journal-ach-progress-fill {
+  height: 100%;
+  background: #7c683b;
+  border-radius: 2px;
+}
+
+.journal-ach-progress-text {
+  font-size: 9px;
+  color: #5d5a69;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.journal-gold-seal {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+  animation: sealSlam 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes sealSlam {
+  0% { transform: scale(3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.journal-empty-msg {
+  padding: 20px;
+  text-align: center;
+  color: #5d5a69;
+  font-family: 'Crimson Text', serif;
+  font-style: italic;
+}
+
+/* Tab Completion Stamp Styles */
+.tab-complete-stamp {
+  animation: bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes bounceIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive Journal layout for smaller screens */
+@media (max-width: 768px) {
+  .journal-book {
+    flex-direction: column;
+    max-height: none;
+    overflow: visible;
+  }
+  
+  .journal-page {
+    border-radius: 12px;
+    border: 3px solid #bba36d;
+    margin-bottom: 12px;
+    height: 320px;
+  }
+  
+  .journal-spine {
+    display: none;
+  }
+  
+  .journal-tabs {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    width: 100%;
+    justify-content: center;
+    gap: 4px;
+  }
+  
+  .journal-tab {
+    border: 2px solid #bba36d;
+    border-radius: 8px;
+    transform: none;
+    width: auto;
+    min-width: 60px;
+    min-height: 36px;
+    padding: 4px 10px;
+  }
+  
+  .journal-tab:hover, .journal-tab.active {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .journal-tab.active {
+    border-left: 2px solid #bba36d !important;
+  }
+}

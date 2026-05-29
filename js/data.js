@@ -91,7 +91,7 @@ const CHARS = [
 
     hp: 130,
     mp: 80,
-    atk: 294,
+    atk: 24,
     mgk: 16,
     spd: 15,
   },

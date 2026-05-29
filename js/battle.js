@@ -388,6 +388,11 @@ function endBattle(won) {
     if (typeof incrementStat === 'function') {
       incrementStat('totalKills', 1);
     }
+    if (gs.currentEnemy && gs.currentEnemy.id) {
+      if (typeof recordEnemyDefeat === 'function') {
+        recordEnemyDefeat(gs.currentEnemy.id);
+      }
+    }
 
     const oldStats = {
       hp: gs.char.hp, atk: gs.char.atk,

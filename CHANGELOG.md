@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.8.2] - 2026-05-29
+
+### 🎨 UI/UX & Aesthetics
+- **Silhouetted Locked Worlds**: Replaced the generic lock emoji (`🔒`) on locked world detail pages in Jiminy's Journal with the silhouetted logo of the world, matching the visual style of undiscovered enemies, keyblades, and accessories.
+- **Authentic Mickey Seal Badges**: Substituted the generic key emoji (`🔑`) next to sealed worlds in the journal index list with the authentic `MickeyChek.png` seal asset.
+- **Mickey Completion Stamps**: Upgraded the tab completion stamp from a generic crown (`👑`) to the animated `MickeyChek.png` stamp, preserving the custom bounce micro-animation.
+- **Text-Only Dynamic Tabs**: Removed emoji icons from all 5 main navigation tabs in the journal, refactoring their CSS to support dynamic widths based on text length. The tabs now overlap the book page cleanly, prevent text wrapping, and have their label font size increased to `11px` for better readability.
+
+### 🔧 Refactoring
+- **Bestiary Rename (Adversaries to Enemies)**: Replaced all user-facing text, page titles, empty states, code references, and tab IDs from "Adversaries" to "Enemies" for clarity and consistency across the codebase.
+
+---
+
 ## [v0.8.1] - 2026-05-28
 
 ### ✨ Features

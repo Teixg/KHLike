@@ -38,19 +38,23 @@
           <button class="btn primary" onclick="startNewJourney()" style="font-size:13px;padding:12px 40px;">
             New Journey
           </button>
-          <div style="display:flex; gap:8px; margin-top:4px; justify-content:center;">
+          <div style="display:flex; gap:6px; margin-top:4px; justify-content:center; flex-wrap:wrap; max-width:420px;">
+            <button class="btn heart-btn" onclick="showJournal()"
+              style="font-size:11px;padding:8px 12px;margin:0;min-width:110px;">
+              📖 Journal
+            </button>
             <button class="btn heart-btn" onclick="showAchievements()"
-              style="font-size:11px;padding:8px 20px;margin:0;min-width:140px;">
+              style="font-size:11px;padding:8px 12px;margin:0;min-width:110px;">
               🏆 Achievements
             </button>
             <button class="btn dark-btn" onclick="showTutorial()"
-              style="font-size:11px;padding:8px 20px;margin:0;min-width:140px;">
+              style="font-size:11px;padding:8px 12px;margin:0;min-width:110px;">
               ❓ How to Play
             </button>
           </div>
         </div>
         <div style="font-family:'Cinzel',serif;font-size:9px;color:var(--kh-muted);margin-top:20px;letter-spacing:3px;">
-          v0.8.1 · May 2026
+          v0.9· May 2026
         </div>
         <div
           style="font-family:'Cinzel',serif;font-size:8px;color:var(--kh-muted);margin-top:20px;letter-spacing:3px; text-align:center; max-width:400px;">
@@ -87,6 +91,74 @@
 
         <button class="btn small dark-btn" onclick="returnFromAchievements()"
           style="margin-top:10px; align-self:center;">
+          ← Return
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+       JIMINY'S JOURNAL SCREEN
+    ══════════════════════════════════ -->
+    <div id="s-journal" class="screen" style="padding:14px 12px;">
+      <div class="content journal-content"
+        style="width:100%; max-width:850px; display:flex; flex-direction:column; align-items:center;">
+
+        <!-- Header -->
+        <div class="cinzel"
+          style="font-size:24px; color:var(--kh-gold); letter-spacing:2px; margin-bottom:4px; text-shadow: 0 0 10px rgba(212,175,55,0.3);">
+          <img src="assets/npc/Jimminy.png" alt="Jiminy" class="title-icon" style="height:40px;"> Jiminy's Journal
+        </div>
+        <div class="crown-deco" style="margin-bottom:12px;"></div>
+
+        <!-- Book Container -->
+        <div class="journal-book">
+          <!-- Left Page -->
+          <div class="journal-page journal-left-page">
+            <div class="journal-tab-title" id="journal-left-title">Chronicles</div>
+
+            <!-- Search bar -->
+            <div id="journal-search-wrap" style="width:100%; margin-bottom:8px; display:none; padding: 0 4px;">
+              <input type="text" id="journal-search" placeholder="Search..." oninput="onJournalSearchInput()"
+                style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid #7c683b; background:#fbf7eb; color:#1a1a24; font-family:'Crimson Text', serif; font-size:13px;" />
+            </div>
+
+            <div class="journal-list-container" id="journal-left-list">
+              <!-- Scrollable entries index -->
+            </div>
+          </div>
+
+          <!-- Book Spine -->
+          <div class="journal-spine"></div>
+
+          <!-- Right Page -->
+          <div class="journal-page journal-right-page">
+            <div class="journal-detail-container" id="journal-right-detail">
+              <!-- Detail view for selected item -->
+            </div>
+          </div>
+
+          <!-- Navigation Tabs on the Right Side -->
+          <div class="journal-tabs">
+            <button class="journal-tab active" onclick="switchJournalTab('chronicles', this)" id="tab-chronicles">
+              <span class="tab-label">Worlds</span>
+            </button>
+            <button class="journal-tab" onclick="switchJournalTab('enemies', this)" id="tab-enemies">
+              <span class="tab-label">Enemies</span>
+            </button>
+            <button class="journal-tab" onclick="switchJournalTab('keyblades', this)" id="tab-keyblades">
+              <span class="tab-label">Keyblades</span>
+            </button>
+            <button class="journal-tab" onclick="switchJournalTab('items', this)" id="tab-items">
+              <span class="tab-label">Accessories</span>
+            </button>
+            <button class="journal-tab" onclick="switchJournalTab('records', this)" id="tab-records">
+              <span class="tab-label">Records</span>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn small dark-btn" id="btn-close-journal" onclick="returnFromJournal()"
+          style="margin-top:14px; align-self:center;">
           ← Return
         </button>
       </div>
@@ -223,6 +295,10 @@
           <button id="btn-global-speed" class="btn tiny primary" onclick="toggleBattleSpeed()"
             style="margin-right: 12px; margin-top: 4px;">
             <img src="assets/extras/Donald-Duck.png" class="speed-btn-icon" alt="Donald" /> Fast Mode
+          </button>
+          <button class="hud-achievements-btn" onclick="showJournalFromMap()" title="Jiminy's Journal"
+            style="background:none; border:none; font-size:16px; cursor:pointer; padding:2px; margin-right: 12px; margin-top: 4px; vertical-align:middle; transition:transform 0.15s ease; outline:none;">
+            📖
           </button>
           <button class="hud-achievements-btn" onclick="showAchievementsFromMap()" title="Achievements"
             style="background:none; border:none; font-size:16px; cursor:pointer; padding:2px; margin-right: 12px; margin-top: 4px; vertical-align:middle; transition:transform 0.15s ease; outline:none;">

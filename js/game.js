@@ -657,7 +657,8 @@ let profile = {
   unlockedAchievements: [],
   unlockedItems: [],
   closedKeyholes: [],
-  maxLevelReached: 1
+  maxLevelReached: 1,
+  defeatedEnemies: {}
 };
 
 function loadProfile() {
@@ -669,6 +670,7 @@ function loadProfile() {
       if (!profile.unlockedAchievements) profile.unlockedAchievements = [];
       if (!profile.unlockedItems) profile.unlockedItems = [];
       if (!profile.closedKeyholes) profile.closedKeyholes = [];
+      if (!profile.defeatedEnemies) profile.defeatedEnemies = {};
       
       // Migration for renamed ring IDs in persistent profile
       if (profile.unlockedItems && profile.unlockedItems.length > 0) {
@@ -706,7 +708,8 @@ function resetProfile() {
     unlockedAchievements: [],
     unlockedItems: [],
     closedKeyholes: [],
-    maxLevelReached: 1
+    maxLevelReached: 1,
+    defeatedEnemies: {}
   };
   saveProfile();
 }
@@ -744,6 +747,13 @@ function recordKeyholeClosed(worldId) {
     saveProfile();
     checkAchievements();
   }
+}
+
+function recordEnemyDefeat(enemyId) {
+  if (!profile.defeatedEnemies) profile.defeatedEnemies = {};
+  profile.defeatedEnemies[enemyId] = (profile.defeatedEnemies[enemyId] || 0) + 1;
+  saveProfile();
+  checkAchievements();
 }
 
 function recordPlayerLevel(level) {
@@ -945,6 +955,658 @@ function renderAchievements() {
   if (summaryEl) {
     const pct = ACHIEVEMENTS.length > 0 ? Math.round((unlockedCount / ACHIEVEMENTS.length) * 100) : 0;
     summaryEl.innerHTML = `Completed: <span id="ach-percent" style="color:var(--kh-gold2); font-weight:bold;">${pct}%</span> (${unlockedCount}/${ACHIEVEMENTS.length})`;
+  }
+}
+
+// ═══════════════════════════════════════
+// JIMINY'S JOURNAL SYSTEM
+// ═══════════════════════════════════════
+
+const WORLD_JOURNAL_INFO = {
+  0: {
+    story: "A quiet, dark town where travelers who have lost their worlds gather. Sora and his friends begin their journey here, uncovering the mystery of the heartless and meeting allies like Leon, Aerith, and Yuffie.",
+    bossLore: "A giant suit of armor animated by Heartless energy. It guards the Town's district boundaries and must be dismantled piece by piece to restore safety."
+  },
+  1: {
+    story: "A bizarre world full of nonsensical rules, talking cards, and shrinking potions. Riku and Sora search for Alice, who is falsely accused of theft by the tyrannical Queen of Hearts.",
+    bossLore: "A tall, spindly Heartless that uses fire-tipped torches to burn down everything in its path. It moves erratic and swings violently."
+  },
+  2: {
+    story: "A wild, uncharted rainforest filled with dense trees, vines, and primal Heartless. Guided by Tarzan, Sora and Riku learn the true meaning of trust and friendship.",
+    bossLore: "A biological mass resembling a carnivorous plant combined with a locked cage, capable of swallowing its victims whole to harness their energy."
+  },
+  3: {
+    story: "The legendary arena of heroes, ruled by Zeus and trained by Phil. Sora and Riku face trials of strength and cross paths with Hercules and the Lord of the Underworld, Hades.",
+    bossLore: "The hot-headed ruler of the Underworld who uses fiery punches and pillars of flame to burn down anyone standing in his way."
+  },
+  4: {
+    story: "A dry desert land of sandstorms and ancient treasures. Here, Aladdin and the Genie fight to protect Princess Jasmine from the evil vizier Jafar, who seeks the magic lamp.",
+    bossLore: "Jafar transformed into a giant, red Genie by his final wish. He commands molten rocks and fireballs from a floating platform."
+  },
+  5: {
+    story: "The spooky world of Halloween, populated by ghosts, ghouls, and pumpkin lanterns. Jack Skellington tries to recruit Heartless for his spooky festival, but they grow out of control.",
+    bossLore: "A giant burlap sack filled with bugs and malice. He rolls dice to trigger mechanical traps and spike beds around his tower."
+  },
+  6: {
+    story: "A grand, decaying fortress where shadows run deep. This is the birthplace of many Heartless, where Sora and Riku must confront their own dark duplicates and save their loved ones.",
+    bossLore: "An replica of Riku created from data, possessing all of his strength and fighting styles, fueled by darkness and resentment."
+  },
+  7: {
+    story: "A mysterious castle of white marble where memories fade and change. This is the final fortress where Marluxia and Organization XIII pull the strings of Sora's heart.",
+    bossLore: "The Graceful Assassin and Lord of Castle Oblivion. He commands giant scythes and showers of cherry blossom petals that slice through defense."
+  }
+};
+
+const ENEMY_LORE = {
+  'shadow': "The most common form of Heartless. Small, swift, and prone to sinking into the floor to avoid incoming attacks.",
+  'soldier': "An armored Heartless that is quick on its feet. It attacks with claw strikes and spinning kick maneuvers.",
+  'guardarmor': "A giant boss Heartless composed of armored plates. It guards the Traverse Town gates.",
+  'rednocturne': "A magical Heartless that floats in the air and attacks by casting Fire spells.",
+  'cardspades': "A card soldier of the Queen of Hearts. It fights fiercely using its steel spear.",
+  'cardhearts': "A loyal guard of the Queen's palace. It uses its halberd to protect the court.",
+  'trickmaster': "A fiery boss Heartless that stalks Wonderland, wielding flaming torches.",
+  'powerwild': "A mischievous ape-like Heartless that excels in leaping attacks and throwing fruit.",
+  'bouncywild': "A female counterpart to Powerwild. It shoots slingshot pellets and drops slippery banana peels.",
+  'creeperplant': "A stationary root-like Heartless that shoots seeds from its bulb.",
+  'parasitecage': "A monstrous parasite Heartless that feeds on organic matter from inside its cage.",
+  'tornadostep': "A spinning propeller-headed Heartless that attacks with high-speed dashes.",
+  'pirate': "A sword-wielding Heartless modeled after sea captains. It charges forward with slashing strikes.",
+  'airsoldier': "A winged Heartless that flies above the battlefield, diving down to slam its targets.",
+  'hades': "The Lord of the Underworld. Wields hellfire and enters an enraged state when pushed.",
+  'bandit': "A scimitar-wielding desert Heartless that runs and slices targets with high speed.",
+  'fatbandit': "A heavy, fire-breathing desert Heartless. Its front side blocks all physical attacks.",
+  'wizard': "A master of magic. Casts elemental spells and can teleport to escape damage.",
+  'geniejafar': "Jafar's ultimate form. A towering crimson genie possessing infinite magical energy.",
+  'wightknight': "A mummy-wrapped Heartless that leaps out of shadows with clawing attacks.",
+  'searchghost': "A floating ghost-like Heartless that absorbs health and light from its victims.",
+  'gargoyle': "A stone-winged gargoyle Heartless that throws dual energy boomerangs.",
+  'oogieboogie': "A bug-filled burlap sack that uses traps and rigged games to defeat his foes.",
+  'defender': "An elite knight Heartless carrying a heavy shield that casts fireballs and blocks attacks.",
+  'wyvern': "A massive flying dragon Heartless that charges and stomps with heavy claws.",
+  'darkball': "A shadow-like orb of pure negative energy that bites and teleports randomly.",
+  'rikureplica': "A clone of Riku engineered by Vexen, using darkness to copy the Keyblade's strength.",
+  'blackfungus': "A rare, metallic mushroom-like Heartless. It is extremely tough and yields gold or rare items.",
+  'organizationXIII': "A mysterious coat-wearing warrior of the Organization, using rapid strikes and keyblade-like movements.",
+  'neoshadow': "A highly advanced Heartless. Swift, aggressive, and capable of pinning down its targets in shadow pools.",
+  'marluxia': "The Graceful Assassin, ruler of Castle Oblivion. Wields a scythe and controls cherry blossoms."
+};
+
+let journalReturnScreen = 's-title';
+let activeJournalTab = 'chronicles';
+let selectedJournalIndex = 0;
+
+function showJournal() {
+  journalReturnScreen = 's-title';
+  showScreen('s-journal');
+  switchJournalTab('chronicles', document.getElementById('tab-chronicles'));
+}
+
+function showJournalFromMap() {
+  journalReturnScreen = 's-map';
+  showScreen('s-journal');
+  switchJournalTab('chronicles', document.getElementById('tab-chronicles'));
+}
+
+function returnFromJournal() {
+  showScreen(journalReturnScreen);
+}
+
+function switchJournalTab(tabId, btn) {
+  activeJournalTab = tabId;
+  selectedJournalIndex = 0;
+  
+  // Clear search field when switching tabs
+  const searchInput = document.getElementById('journal-search');
+  if (searchInput) searchInput.value = '';
+
+  // Show search bar only for Enemies, Keyblades, Accessories
+  const searchWrap = document.getElementById('journal-search-wrap');
+  if (searchWrap) {
+    if (tabId === 'enemies' || tabId === 'keyblades' || tabId === 'items') {
+      searchWrap.style.display = 'block';
+    } else {
+      searchWrap.style.display = 'none';
+    }
+  }
+
+  // Update tabs active state
+  document.querySelectorAll('.journal-tab').forEach(b => b.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const targetTab = document.getElementById('tab-' + tabId);
+    if (targetTab) targetTab.classList.add('active');
+  }
+
+  // Update Left Title
+  const leftTitle = document.getElementById('journal-left-title');
+  if (leftTitle) {
+    if (tabId === 'chronicles') leftTitle.textContent = 'Chronicles';
+    else if (tabId === 'enemies') leftTitle.textContent = 'Enemies';
+    else if (tabId === 'keyblades') leftTitle.textContent = 'Keyblades';
+    else if (tabId === 'items') leftTitle.textContent = 'Accessories';
+    else if (tabId === 'records') leftTitle.textContent = 'Records';
+  }
+
+  renderJournalList();
+  renderJournalCompletionStamps();
+}
+
+function onJournalSearchInput() {
+  renderJournalList();
+}
+
+function renderJournalList() {
+  const listEl = document.getElementById('journal-left-list');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  const searchInput = document.getElementById('journal-search');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  if (activeJournalTab === 'chronicles') {
+    WORLDS.forEach(world => {
+      // Unlocked if visited (index <= currentWorldId) OR if we closed its keyhole in a past run
+      const isUnlocked = (gs.char && world.id <= gs.currentWorldId) || 
+                         (profile.closedKeyholes && profile.closedKeyholes.includes(world.id));
+      
+      const item = document.createElement('div');
+      item.className = `journal-list-item ${isUnlocked ? 'unlocked' : 'locked'} ${selectedJournalIndex === world.id ? 'active' : ''}`;
+      
+      let isSealed = profile.closedKeyholes && profile.closedKeyholes.includes(world.id);
+      
+      item.innerHTML = `
+        <span class="journal-item-name">${isUnlocked ? world.name : `World ${world.id + 1} (locked)`}</span>
+        ${isSealed ? `<span class="journal-item-badge"><img src="assets/extras/MickeyChek.png" alt="Sealed" style="width:14px;height:auto;vertical-align:middle;margin-left:4px;" /></span>` : ''}
+      `;
+      
+      item.onclick = () => {
+        selectedJournalIndex = world.id;
+        document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        renderJournalDetail(world.id);
+      };
+      
+      listEl.appendChild(item);
+    });
+    
+    renderJournalDetail(selectedJournalIndex);
+
+  } else if (activeJournalTab === 'enemies') {
+    const enemies = ENEMY_TEMPLATES.filter(enemy => {
+      const isDefeated = profile.defeatedEnemies && profile.defeatedEnemies[enemy.id] > 0;
+      const matchName = isDefeated ? enemy.name.toLowerCase() : '???';
+      return matchName.includes(query);
+    });
+
+    if (enemies.length === 0) {
+      listEl.innerHTML = `<div class="journal-empty-msg">No enemies found</div>`;
+      renderJournalDetail(null);
+      return;
+    }
+
+    enemies.forEach((enemy, idx) => {
+      const isDefeated = profile.defeatedEnemies && profile.defeatedEnemies[enemy.id] > 0;
+      
+      const item = document.createElement('div');
+      item.className = `journal-list-item ${isDefeated ? 'unlocked' : 'locked'} ${selectedJournalIndex === idx ? 'active' : ''}`;
+      
+      item.innerHTML = `
+        <div class="journal-item-thumb ${isDefeated ? '' : 'silhouetted'}">${enemy.icon}</div>
+        <span class="journal-item-name">${isDefeated ? enemy.name : '???' }</span>
+      `;
+      
+      item.onclick = () => {
+        selectedJournalIndex = idx;
+        document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        renderJournalDetail(enemy);
+      };
+      
+      listEl.appendChild(item);
+    });
+
+    renderJournalDetail(enemies[selectedJournalIndex] || null);
+
+  } else if (activeJournalTab === 'keyblades') {
+    const keyblades = KEYBLADES.filter(kb => {
+      const isUnlocked = profile.unlockedKeyblades && profile.unlockedKeyblades.includes(kb.id);
+      const matchName = isUnlocked ? kb.name.toLowerCase() : '???';
+      return matchName.includes(query);
+    });
+
+    if (keyblades.length === 0) {
+      listEl.innerHTML = `<div class="journal-empty-msg">No keyblades found</div>`;
+      renderJournalDetail(null);
+      return;
+    }
+
+    keyblades.forEach((kb, idx) => {
+      const isUnlocked = profile.unlockedKeyblades && profile.unlockedKeyblades.includes(kb.id);
+      
+      const item = document.createElement('div');
+      item.className = `journal-list-item ${isUnlocked ? 'unlocked' : 'locked'} ${selectedJournalIndex === idx ? 'active' : ''}`;
+      
+      item.innerHTML = `
+        <div class="journal-item-thumb ${isUnlocked ? '' : 'silhouetted'}">${kb.icon}</div>
+        <span class="journal-item-name">${isUnlocked ? kb.name : '???' }</span>
+      `;
+      
+      item.onclick = () => {
+        selectedJournalIndex = idx;
+        document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        renderJournalDetail(kb);
+      };
+      
+      listEl.appendChild(item);
+    });
+
+    renderJournalDetail(keyblades[selectedJournalIndex] || null);
+
+  } else if (activeJournalTab === 'items') {
+    const items = ITEMS.filter(item => {
+      const isUnlocked = profile.unlockedItems && profile.unlockedItems.includes(item.id);
+      const matchName = isUnlocked ? item.name.toLowerCase() : '???';
+      return matchName.includes(query);
+    });
+
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="journal-empty-msg">No accessories found</div>`;
+      renderJournalDetail(null);
+      return;
+    }
+
+    items.forEach((item, idx) => {
+      const isUnlocked = profile.unlockedItems && profile.unlockedItems.includes(item.id);
+      
+      const itemEl = document.createElement('div');
+      itemEl.className = `journal-list-item ${isUnlocked ? 'unlocked' : 'locked'} ${selectedJournalIndex === idx ? 'active' : ''}`;
+      
+      itemEl.innerHTML = `
+        <div class="journal-item-thumb ${isUnlocked ? '' : 'silhouetted'}">${item.icon}</div>
+        <span class="journal-item-name">${isUnlocked ? item.name : '???' }</span>
+      `;
+      
+      itemEl.onclick = () => {
+        selectedJournalIndex = idx;
+        document.querySelectorAll('.journal-list-item').forEach(el => el.classList.remove('active'));
+        itemEl.classList.add('active');
+        renderJournalDetail(item);
+      };
+      
+      listEl.appendChild(itemEl);
+    });
+
+    renderJournalDetail(items[selectedJournalIndex] || null);
+
+  } else if (activeJournalTab === 'records') {
+    // Records left page is stats summary, right page is achievements list
+    renderJournalDetail('records');
+  }
+}
+
+function renderJournalDetail(selectedItem) {
+  const detailEl = document.getElementById('journal-right-detail');
+  if (!detailEl) return;
+  detailEl.innerHTML = '';
+
+  if (selectedItem === null) {
+    detailEl.innerHTML = `<div class="journal-detail-empty">Select an entry from the index to view details.</div>`;
+    return;
+  }
+
+  if (activeJournalTab === 'chronicles') {
+    const worldId = selectedItem;
+    const world = WORLDS[worldId];
+    const isUnlocked = (gs.char && world.id <= gs.currentWorldId) || 
+                       (profile.closedKeyholes && profile.closedKeyholes.includes(world.id));
+
+    if (!isUnlocked) {
+      detailEl.innerHTML = `
+        <div class="journal-locked-detail">
+          <div class="journal-locked-icon silhouetted">${world.icon}</div>
+          <h3 class="cinzel">Locked World</h3>
+          <p>This world has not been visited on your journeys yet.</p>
+          <p class="journal-muted-tip">Continue playing the game and clearing rooms to unlock this world page.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const isSealed = profile.closedKeyholes && profile.closedKeyholes.includes(world.id);
+    const worldInfo = WORLD_JOURNAL_INFO[world.id] || { story: 'Explore the world.', bossLore: 'Defeat the boss.' };
+
+    detailEl.innerHTML = `
+      <div class="journal-detail-view scrollable-content">
+        <div class="world-detail-header">
+          <div class="world-detail-logo">${world.icon}</div>
+          <h2 class="world-detail-title cinzel">${world.name}</h2>
+          <div class="world-detail-subtitle">Floor levels: ${world.levelRange[0]} - ${world.levelRange[1]}</div>
+        </div>
+
+        <div class="world-detail-seal-status ${isSealed ? 'sealed' : 'unsealed'}">
+          ${isSealed ? '🏆 Keyhole Sealed' : '⚠️ Keyhole Unsealed'}
+        </div>
+
+        <h4 class="journal-section-header">Chronicle</h4>
+        <p class="journal-body-text">${worldInfo.story}</p>
+
+        <h4 class="journal-section-header">Boss Adversary</h4>
+        <p class="world-boss-name"><b>${ENEMY_TEMPLATES.find(e => e.id === world.boss)?.name || 'Unknown'}</b></p>
+        <p class="journal-body-text">${worldInfo.bossLore}</p>
+        
+        ${isSealed ? `
+          <div class="journal-gold-seal">
+            <svg viewBox="0 0 100 100" class="mickey-seal">
+              <circle cx="50" cy="55" r="22" fill="#c9a84c" opacity="0.8"/>
+              <circle cx="28" cy="30" r="13" fill="#c9a84c" opacity="0.8"/>
+              <circle cx="72" cy="30" r="13" fill="#c9a84c" opacity="0.8"/>
+              <text x="50" y="90" font-family="'Cinzel', serif" font-size="8" fill="#5a461c" font-weight="bold" text-anchor="middle">SEALED</text>
+            </svg>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+  } else if (activeJournalTab === 'enemies') {
+    const enemy = selectedItem;
+    const isDefeated = profile.defeatedEnemies && profile.defeatedEnemies[enemy.id] > 0;
+
+    if (!isDefeated) {
+      detailEl.innerHTML = `
+        <div class="journal-locked-detail">
+          <div class="journal-locked-icon silhouetted">${enemy.icon}</div>
+          <h3 class="cinzel">Enemy ???</h3>
+          <p>You have not defeated this opponent yet.</p>
+          <p class="journal-muted-tip">Find this enemy in the world nodes to log their coordinates.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const lore = ENEMY_LORE[enemy.id] || "A dark presence encountered along the way.";
+    const originWorld = WORLDS[enemy.worldId] ? WORLDS[enemy.worldId].name : 'Unknown World';
+    const defeatCount = profile.defeatedEnemies[enemy.id];
+
+    detailEl.innerHTML = `
+      <div class="journal-detail-view scrollable-content">
+        <div class="enemy-detail-header">
+          <div class="enemy-detail-sprite">${enemy.icon}</div>
+          <h2 class="enemy-detail-title cinzel">${enemy.name}</h2>
+          <div class="enemy-detail-type">${enemy.type || 'Heartless'} · Origin: ${originWorld}</div>
+        </div>
+
+        <h4 class="journal-section-header">Description</h4>
+        <p class="journal-body-text">${lore}</p>
+
+        <h4 class="journal-section-header">Combat Stats (Base)</h4>
+        <div class="enemy-stats-grid">
+          <div class="enemy-stat-card">
+            <span class="stat-lbl">Base HP</span>
+            <span class="stat-val">${enemy.baseHp}</span>
+          </div>
+          <div class="enemy-stat-card">
+            <span class="stat-lbl">Base ATK</span>
+            <span class="stat-val">${enemy.baseAtk}</span>
+          </div>
+          <div class="enemy-stat-card">
+            <span class="stat-lbl">Defeated</span>
+            <span class="stat-val" style="color:var(--kh-gold); font-weight:bold;">${defeatCount} ${defeatCount === 1 ? 'time' : 'times'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+  } else if (activeJournalTab === 'keyblades') {
+    const kb = selectedItem;
+    const isUnlocked = profile.unlockedKeyblades && profile.unlockedKeyblades.includes(kb.id);
+
+    if (!isUnlocked) {
+      detailEl.innerHTML = `
+        <div class="journal-locked-detail">
+          <div class="journal-locked-icon silhouetted" style="transform: scale(1.5); margin: 20px 0;">${kb.icon}</div>
+          <h3 class="cinzel">Keyblade ???</h3>
+          <p>This Keyblade has not been unlocked.</p>
+          <p class="journal-muted-tip">Find this weapon in chests or clear boss fights to unlock its secrets.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const originWorld = WORLDS[kb.world] ? WORLDS[kb.world].name : 'Special Unlock';
+
+    detailEl.innerHTML = `
+      <div class="journal-detail-view scrollable-content">
+        <div class="keyblade-detail-header">
+          <div class="keyblade-detail-icon">${kb.icon}</div>
+          <h2 class="keyblade-detail-title cinzel" style="margin-top:10px;">${kb.name}</h2>
+          <div class="keyblade-detail-origin">World: ${originWorld}</div>
+        </div>
+
+        <h4 class="journal-section-header">Stats & Abilities</h4>
+        <div class="keyblade-stats-box">
+          <div class="keyblade-stat-line">
+            <span>Strength rating (ATK)</span>
+            <strong style="color:var(--kh-gold2);">${kb.atk}</strong>
+          </div>
+        </div>
+
+        <h4 class="journal-section-header">Journal Entry</h4>
+        <p class="journal-body-text" style="font-style: italic;">"${kb.description}"</p>
+      </div>
+    `;
+
+  } else if (activeJournalTab === 'items') {
+    const item = selectedItem;
+    const isUnlocked = profile.unlockedItems && profile.unlockedItems.includes(item.id);
+
+    if (!isUnlocked) {
+      detailEl.innerHTML = `
+        <div class="journal-locked-detail">
+          <div class="journal-locked-icon silhouetted" style="transform: scale(1.5); margin: 20px 0;">${item.icon}</div>
+          <h3 class="cinzel">Accessory ???</h3>
+          <p>This accessory has not been discovered yet.</p>
+          <p class="journal-muted-tip">Buy items from Moogle Shops or open world chests to discover accessories.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let statDescription = '';
+    if (item.stat === 'spd') statDescription = `Increases character Speed by +${item.bonus} points, improving Dodge Roll and Double Strike chances in combat.`;
+    else if (item.stat === 'hp') statDescription = `Increases maximum Health Points (HP) by +${item.bonus} points, enhancing durability.`;
+    else if (item.stat === 'atk') statDescription = `Boosts physical Attack (ATK) power by +${item.bonus} points.`;
+    else if (item.stat === 'mgk') statDescription = `Enhances Magic (MGK) rating by +${item.bonus} points, increasing spell damage and Cure spell potency.`;
+    else if (item.stat === 'mp') statDescription = `Increases maximum Mana Points (MP) by +${item.bonus} points.`;
+
+    detailEl.innerHTML = `
+      <div class="journal-detail-view scrollable-content">
+        <div class="item-detail-header">
+          <div class="item-detail-icon">${item.icon}</div>
+          <h2 class="item-detail-title cinzel" style="margin-top:10px;">${item.name}</h2>
+          <div class="item-detail-stat-wrap">
+            ${STAT_ICONS[item.stat] || ''} <span style="font-weight:bold; color:var(--kh-gold2);">+${item.bonus}</span>
+          </div>
+        </div>
+
+        <h4 class="journal-section-header">Effect & Properties</h4>
+        <p class="journal-body-text">${statDescription}</p>
+
+        <h4 class="journal-section-header">Dismantling Bonus</h4>
+        <p class="journal-body-text">Recycling this item at the forge yields a random, permanent bonus to Max HP, Max MP, Strength, or Magic.</p>
+      </div>
+    `;
+
+  } else if (selectedItem === 'records') {
+    // Chronicles completion calculation
+    const worldSeals = profile.closedKeyholes ? profile.closedKeyholes.length : 0;
+    const worldSealsPct = Math.round((worldSeals / WORLDS.length) * 100);
+
+    // Enemies completion calculation
+    const defeatedCount = Object.keys(profile.defeatedEnemies || {}).length;
+    const defeatedPct = Math.round((defeatedCount / ENEMY_TEMPLATES.length) * 100);
+
+    // Keyblades completion calculation
+    const keybladeCount = profile.unlockedKeyblades ? profile.unlockedKeyblades.length : 0;
+    const keybladePct = Math.round((keybladeCount / KEYBLADES.length) * 100);
+
+    // Items completion calculation
+    const itemsCount = profile.unlockedItems ? profile.unlockedItems.length : 0;
+    const itemsPct = Math.round((itemsCount / ITEMS.length) * 100);
+
+    // Achievements completion calculation
+    const unlockedAchCount = profile.unlockedAchievements ? profile.unlockedAchievements.length : 0;
+    const achPct = Math.round((unlockedAchCount / ACHIEVEMENTS.length) * 100);
+
+    // Overall completion calculation
+    const overallPct = Math.round((worldSealsPct + defeatedPct + keybladePct + itemsPct + achPct) / 5);
+
+    // Left Page (rendered in the left container directly, overwriting listEl!)
+    const listEl = document.getElementById('journal-left-list');
+    if (listEl) {
+      listEl.innerHTML = `
+        <div class="journal-detail-view scrollable-content" style="color:#1a1a24; font-family:'Crimson Text', serif; font-size: 13px;">
+          <h3 class="cinzel" style="font-size:16px; border-bottom:1px solid #7c683b; padding-bottom:4px; margin-bottom:10px;">General Statistics</h3>
+          <div class="journal-stats-summary">
+            <div class="journal-stat-line"><span>Sora Cleared:</span> <strong>${profile.soraWon ? 'YES ✅' : 'NO ❌'}</strong></div>
+            <div class="journal-stat-line"><span>Riku Cleared:</span> <strong>${profile.rikuWon ? 'YES ✅' : 'NO ❌'}</strong></div>
+            <div class="journal-stat-line"><span>Max Level Reached:</span> <strong>LV ${profile.maxLevelReached || 1}</strong></div>
+            <div class="journal-stat-line"><span>Total Foes Defeated:</span> <strong>${profile.totalKills || 0}</strong></div>
+            <div class="journal-stat-line"><span>Moogle Shop Buys:</span> <strong>${profile.moogleItemsBought || 0}</strong></div>
+          </div>
+
+          <h3 class="cinzel" style="font-size:16px; border-bottom:1px solid #7c683b; padding-bottom:4px; margin-bottom:10px; margin-top:14px;">Completion Rates</h3>
+          <div class="journal-progress-rows" style="display:flex; flex-direction:column; gap:6px;">
+            <div>
+              <div class="journal-progress-label"><span>Worlds Sealed:</span> <span>${worldSeals}/${WORLDS.length} (${worldSealsPct}%)</span></div>
+              <div class="journal-bar"><div class="journal-fill" style="width:${worldSealsPct}%"></div></div>
+            </div>
+            <div>
+              <div class="journal-progress-label"><span>Bestiary Logged:</span> <span>${defeatedCount}/${ENEMY_TEMPLATES.length} (${defeatedPct}%)</span></div>
+              <div class="journal-bar"><div class="journal-fill" style="width:${defeatedPct}%"></div></div>
+            </div>
+            <div>
+              <div class="journal-progress-label"><span>Keyblades Unlocked:</span> <span>${keybladeCount}/${KEYBLADES.length} (${keybladePct}%)</span></div>
+              <div class="journal-bar"><div class="journal-fill" style="width:${keybladePct}%"></div></div>
+            </div>
+            <div>
+              <div class="journal-progress-label"><span>Accessories Found:</span> <span>${itemsCount}/${ITEMS.length} (${itemsPct}%)</span></div>
+              <div class="journal-bar"><div class="journal-fill" style="width:${itemsPct}%"></div></div>
+            </div>
+            <div>
+              <div class="journal-progress-label"><span>Achievements Earned:</span> <span>${unlockedAchCount}/${ACHIEVEMENTS.length} (${achPct}%)</span></div>
+              <div class="journal-bar"><div class="journal-fill" style="width:${achPct}%"></div></div>
+            </div>
+          </div>
+          
+          <div class="journal-overall-score" style="margin-top:16px; padding:10px; border-radius:10px; background: rgba(90, 75, 44, 0.08); border: 1px dashed #7c683b; text-align:center;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#5d5a69;">Overall Score</div>
+            <div class="cinzel" style="font-size:24px; font-weight:bold; color:#7c683b;">${overallPct}%</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Right Page details: achievements list scrollable!
+    detailEl.innerHTML = `
+      <div class="journal-detail-view scrollable-content">
+        <h3 class="cinzel" style="font-size:16px; border-bottom:1px solid #7c683b; padding-bottom:4px; margin-bottom:12px; color:#1a1a24;">🏆 Achievements List</h3>
+        <div id="journal-achievements-container" class="journal-achievements-list">
+          <!-- Dynamically injected achievements cards -->
+        </div>
+      </div>
+    `;
+
+    // Render achievements inside the scrollable container
+    const achContainer = document.getElementById('journal-achievements-container');
+    if (achContainer) {
+      ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = profile.unlockedAchievements.includes(ach.id);
+        const currentProgress = getAchievementProgress(ach.id);
+        const maxProgress = ach.maxProgress;
+        const progressPct = Math.min(100, Math.round((currentProgress / maxProgress) * 100));
+
+        const card = document.createElement('div');
+        card.className = `journal-ach-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+        card.innerHTML = `
+          <div class="journal-ach-icon ${isUnlocked ? '' : 'silhouetted'}">
+            ${ach.icon}
+          </div>
+          <div class="journal-ach-info">
+            <div class="journal-ach-name">${ach.name}</div>
+            <div class="journal-ach-desc">${ach.desc}</div>
+            <div class="journal-ach-progress-bar">
+              <div class="journal-ach-progress-fill" style="width: ${progressPct}%;"></div>
+            </div>
+            <div class="journal-ach-progress-text">${currentProgress} / ${maxProgress}</div>
+          </div>
+        `;
+        achContainer.appendChild(card);
+      });
+    }
+
+    if (overallPct === 100) {
+      detailEl.innerHTML += `
+        <div class="journal-gold-seal" style="bottom: 10px; right: 10px;">
+          <svg viewBox="0 0 100 100" class="mickey-seal">
+            <circle cx="50" cy="55" r="22" fill="#c9a84c" opacity="0.85"/>
+            <circle cx="28" cy="30" r="13" fill="#c9a84c" opacity="0.85"/>
+            <circle cx="72" cy="30" r="13" fill="#c9a84c" opacity="0.85"/>
+            <text x="50" y="90" font-family="'Cinzel', serif" font-size="7" fill="#5a461c" font-weight="bold" text-anchor="middle">COMPLETE</text>
+          </svg>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderJournalCompletionStamps() {
+  // Check completion of each tab
+  // Tab 1: Chronicles
+  const chroniclesSealed = profile.closedKeyholes ? profile.closedKeyholes.length : 0;
+  const isChroniclesComplete = (chroniclesSealed === WORLDS.length);
+
+  // Tab 2: Enemies
+  const defeatedCount = Object.keys(profile.defeatedEnemies || {}).length;
+  const isEnemiesComplete = (defeatedCount === ENEMY_TEMPLATES.length);
+
+  // Tab 3: Keyblades
+  const keybladeCount = profile.unlockedKeyblades ? profile.unlockedKeyblades.length : 0;
+  const isKeybladesComplete = (keybladeCount === KEYBLADES.length);
+
+  // Tab 4: Accessories
+  const itemsCount = profile.unlockedItems ? profile.unlockedItems.length : 0;
+  const isItemsComplete = (itemsCount === ITEMS.length);
+
+  // Tab 5: Records
+  const unlockedAchCount = profile.unlockedAchievements ? profile.unlockedAchievements.length : 0;
+  const isRecordsComplete = (unlockedAchCount === ACHIEVEMENTS.length);
+
+  updateTabStamp('tab-chronicles', isChroniclesComplete);
+  updateTabStamp('tab-enemies', isEnemiesComplete);
+  updateTabStamp('tab-keyblades', isKeybladesComplete);
+  updateTabStamp('tab-items', isItemsComplete);
+  updateTabStamp('tab-records', isRecordsComplete);
+}
+
+function updateTabStamp(tabId, isComplete) {
+  const btn = document.getElementById(tabId);
+  if (!btn) return;
+  
+  // Remove existing stamp icon if any
+  const oldStamp = btn.querySelector('.tab-complete-stamp');
+  if (oldStamp) oldStamp.remove();
+
+  if (isComplete) {
+    const stamp = document.createElement('img');
+    stamp.className = 'tab-complete-stamp';
+    stamp.src = 'assets/extras/MickeyChek.png';
+    stamp.style.width = '12px';
+    stamp.style.height = 'auto';
+    stamp.style.marginLeft = '4px';
+    stamp.style.verticalAlign = 'middle';
+    btn.appendChild(stamp);
   }
 }
 
